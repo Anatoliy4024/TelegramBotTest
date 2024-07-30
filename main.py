@@ -17,7 +17,6 @@ VIDEO_PATH = 'media/IMG_4077_1 (online-video-cutter.com).mp4'  # Укажите 
 # Замените 'YOUR_BOT_TOKEN' на токен вашего бота
 BOT_TOKEN = '7407529729:AAErOT5NBpMSO-V-HPAW-MDu_1WQt0TtXng'
 
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_data = context.user_data
     user_data['step'] = 'start'
@@ -31,7 +30,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Choose your language / Выберите язык / Elige tu idioma",
             reply_markup=language_selection_keyboard()
         )
-
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -127,26 +125,16 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=yes_no_keyboard(user_data['language'])
         )
 
-    elif query.data.startswith('next_') or query.data.startswith('prev_'):
-        month_offset = int(query.data.split('_')[1])
+    elif query.data.startswith('prev_month_') or query.data.startswith('next_month_'):
+        month_offset = int(query.data.split('_')[2])
         user_data['month_offset'] = month_offset
         await show_calendar(query, month_offset, user_data.get('language', 'en'))
 
-
 async def show_calendar(query, month_offset, language):
-    calendar_texts = {
-        'en': 'Select a date:',
-        'ru': 'Выберите дату:',
-        'es': 'Seleccione una fecha:',
-        'fr': 'Sélectionnez une date :',
-        'uk': 'Виберіть дату:',
-        'pl': 'Wybierz datę:'
-    }
     await query.message.reply_text(
-        calendar_texts.get(language, 'Select a date:'),
+        'Select a date:',
         reply_markup=generate_calendar_keyboard(month_offset, language)
     )
-
 
 async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_data = context.user_data
@@ -178,7 +166,6 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
             greeting_texts.get(language_code, f'Hello {user_data["name"]}! Do you want to see available dates?'),
             reply_markup=yes_no_keyboard(language_code)
         )
-
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(BOT_TOKEN).build()

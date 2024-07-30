@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from datetime import datetime, timedelta
-import calendar
+import calendar  # Импортируем модуль calendar
 
 def language_selection_keyboard():
     keyboard = [
@@ -52,7 +52,7 @@ def generate_calendar_keyboard(month_offset=0, language='en'):
     calendar_buttons = []
 
     # Заголовок с месяцем и годом
-    month_name = calendar.month_name[target_month]
+    month_name = calendar.month_name[target_month]  # Получаем название месяца
     calendar_buttons.append([InlineKeyboardButton(f"{month_name} {year}", callback_data='none')])
 
     first_day = datetime(year, target_month, 1)
@@ -91,19 +91,26 @@ def generate_calendar_keyboard(month_offset=0, language='en'):
     return InlineKeyboardMarkup(calendar_buttons)
 
 def generate_time_selection_keyboard():
-    # Пример генерации клавиатуры для выбора времени
-    time_buttons = [
-        [InlineKeyboardButton("09:00", callback_data='time_09:00')],
-        [InlineKeyboardButton("10:00", callback_data='time_10:00')],
-        [InlineKeyboardButton("11:00", callback_data='time_11:00')],
-        [InlineKeyboardButton("12:00", callback_data='time_12:00')],
-        [InlineKeyboardButton("13:00", callback_data='time_13:00')],
-        [InlineKeyboardButton("14:00", callback_data='time_14:00')],
-        [InlineKeyboardButton("15:00", callback_data='time_15:00')],
-        [InlineKeyboardButton("16:00", callback_data='time_16:00')],
-        [InlineKeyboardButton("17:00", callback_data='time_17:00')],
-        [InlineKeyboardButton("18:00", callback_data='time_18:00')],
-        [InlineKeyboardButton("19:00", callback_data='time_19:00')],
-        [InlineKeyboardButton("20:00", callback_data='time_20:00')]
-    ]
-    return InlineKeyboardMarkup(time_buttons)
+    # Начальное и конечное время
+    start_time = datetime.strptime('08:00', '%H:%M')
+    end_time = datetime.strptime('20:00', '%H:%M')
+
+    # Генерация кнопок времени с шагом в 30 минут
+    time_buttons = []
+    current_time = start_time
+
+    while current_time <= end_time:
+        time_str = current_time.strftime('%H:%M')
+        time_buttons.append(InlineKeyboardButton(time_str, callback_data=f'time_{time_str}'))
+        current_time += timedelta(minutes=30)
+
+    # Разбиение кнопок на несколько строк
+    num_buttons_per_row = 4  # Количество кнопок в строке
+    rows = [time_buttons[i:i + num_buttons_per_row] for i in range(0, len(time_buttons), num_buttons_per_row)]
+
+    # Надпись на клавиатуре
+    keyboard = [
+        [InlineKeyboardButton("Выберите время начала", callback_data='none')]
+    ] + rows
+
+    return InlineKeyboardMarkup(keyboard)

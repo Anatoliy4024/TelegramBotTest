@@ -81,11 +81,29 @@ def generate_calendar_keyboard(month_offset=0, language='en'):
     prev_month_name = calendar.month_name[prev_month.month]
     next_month_name = calendar.month_name[next_month.month]
 
-    # Кнопки для навигации по месяцам
+    # Кнопки для навигации по месяцам с названиями месяцев
     navigation = [
-        InlineKeyboardButton(prev_month_name, callback_data=f'prev_month_{month_offset - 1}') if month_offset > -2 else InlineKeyboardButton(" ", callback_data='none'),
-        InlineKeyboardButton(next_month_name, callback_data=f'next_month_{month_offset + 1}') if month_offset < 2 else InlineKeyboardButton(" ", callback_data='none')
+        InlineKeyboardButton(f"◀️ {prev_month_name}", callback_data=f'prev_month_{month_offset - 1}') if month_offset > -1 else InlineKeyboardButton(" ", callback_data='none'),
+        InlineKeyboardButton(f"{next_month_name} ▶️", callback_data=f'next_month_{month_offset + 1}') if month_offset < 2 else InlineKeyboardButton(" ", callback_data='none')
     ]
     calendar_buttons.append(navigation)
 
     return InlineKeyboardMarkup(calendar_buttons)
+
+def generate_time_selection_keyboard():
+    # Пример генерации клавиатуры для выбора времени
+    time_buttons = [
+        [InlineKeyboardButton("09:00", callback_data='time_09:00')],
+        [InlineKeyboardButton("10:00", callback_data='time_10:00')],
+        [InlineKeyboardButton("11:00", callback_data='time_11:00')],
+        [InlineKeyboardButton("12:00", callback_data='time_12:00')],
+        [InlineKeyboardButton("13:00", callback_data='time_13:00')],
+        [InlineKeyboardButton("14:00", callback_data='time_14:00')],
+        [InlineKeyboardButton("15:00", callback_data='time_15:00')],
+        [InlineKeyboardButton("16:00", callback_data='time_16:00')],
+        [InlineKeyboardButton("17:00", callback_data='time_17:00')],
+        [InlineKeyboardButton("18:00", callback_data='time_18:00')],
+        [InlineKeyboardButton("19:00", callback_data='time_19:00')],
+        [InlineKeyboardButton("20:00", callback_data='time_20:00')]
+    ]
+    return InlineKeyboardMarkup(time_buttons)

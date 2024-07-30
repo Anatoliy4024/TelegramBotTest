@@ -4,7 +4,7 @@ import logging
 import os
 import asyncio
 
-from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard
+from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard
 
 # Включаем логирование
 logging.basicConfig(
@@ -92,9 +92,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             }
             await query.message.reply_text(
                 time_selection_texts.get(user_data['language'], "Select start and end time"),
-                reply_markup=InlineKeyboardMarkup([[
-                    InlineKeyboardButton("OK", callback_data="time_selected")
-                ]])
+                reply_markup=generate_time_selection_keyboard()
             )
 
     elif query.data == 'no':
@@ -125,12 +123,30 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=yes_no_keyboard(user_data['language'])
         )
 
+    elif query.data.startswith('time_'):
+        selected_time = query.data.split('_')[1]
+        if 'start_time' not in user_data:
+            user_data['start_time'] = selected_time
+            await query.message.reply_text(f'Start time set to {selected_time}. Now select end time.',
+                                          reply_markup=generate_time_selection_keyboard())
+        else:
+            user_data['end_time'] = selected_time
+            user_data['step'] = 'confirm'
+            await query.message.reply_text(f'End time set to {selected_time}. Confirm your selection.',
+                                          reply_markup=yes_no_keyboard(user_data.get('language', 'en')))
+
     elif query.data.startswith('prev_month_') or query.data.startswith('next_month_'):
         month_offset = int(query.data.split('_')[2])
         user_data['month_offset'] = month_offset
         await show_calendar(query, month_offset, user_data.get('language', 'en'))
 
 async def show_calendar(query, month_offset, language):
+    # Ограничиваем смещение месяцев: один месяц назад и два месяца вперед
+    if month_offset < -1:
+        month_offset = -1
+    elif month_offset > 2:
+        month_offset = 2
+
     await query.message.reply_text(
         'Select a date:',
         reply_markup=generate_calendar_keyboard(month_offset, language)

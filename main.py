@@ -84,15 +84,15 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user_data['step'] = 'time_selection'
             time_selection_texts = {
                 'en': "Select start and end time",
-                'ru': "Выбери время начала и время окончания",
+                'ru': "Выберите время начала и окончания",
                 'es': "Selecciona la hora de inicio y fin",
                 'fr': "Sélectionnez l'heure de début et de fin",
-                'uk': "Виберіть час початку та завершення",
+                'uk': "Виберіть час початку та закінчення",
                 'pl': "Wybierz czas rozpoczęcia i zakończenia"
             }
             await query.message.reply_text(
                 time_selection_texts.get(user_data['language'], "Select start and end time"),
-                reply_markup=generate_time_selection_keyboard()
+                reply_markup=generate_time_selection_keyboard(user_data['language'])  # Передаем язык в клавиатуру
             )
 
     elif query.data == 'no':
@@ -128,7 +128,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if 'start_time' not in user_data:
             user_data['start_time'] = selected_time
             await query.message.reply_text(f'Start time set to {selected_time}. Now select end time.',
-                                          reply_markup=generate_time_selection_keyboard())
+                                          reply_markup=generate_time_selection_keyboard(user_data['language']))  # Передаем язык в клавиатуру
         else:
             user_data['end_time'] = selected_time
             user_data['step'] = 'confirm'
@@ -149,7 +149,7 @@ async def show_calendar(query, month_offset, language):
 
     await query.message.reply_text(
         'Select a date:',
-        reply_markup=generate_calendar_keyboard(month_offset, language)
+        reply_markup=generate_calendar_keyboard(month_offset, language)  # Передаем язык в календарь
     )
 
 async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE):

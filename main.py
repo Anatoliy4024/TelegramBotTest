@@ -74,7 +74,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': '¡Hola! ¿Cómo te llamas?',
             'fr': 'Salut! Quel est votre nom ?',
             'uk': 'Привіт! Як вас звати?',
-            'pl': 'Cześć! Jak masz na imię?',
+            'pl': 'Cześć! Jak masz na имię?',
             'de': 'Hallo! Wie heißt du?',
             'it': 'Ciao! Come ti chiami?'
         }
@@ -90,7 +90,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 'en': "Select start and end time (minimum duration 2 hours)",
                 'ru': "Выберите время начала и окончания (минимальная продолжительность 2 часа)",
                 'es': "Selecciona la hora de inicio y fin (duración mínima 2 horas)",
-                'fr': "Sélectionnez l'heure de début et de fin (durée minimale 2 heures)",
+                'fr': "Sélectionnez l'heure de début и de fin (durée minimale 2 heures)",
                 'uk': "Виберіть час початку та закінчення (мінімальна тривалість 2 години)",
                 'pl': "Wybierz czas rozpoczęcia i zakończenia (minimalny czas trwania 2 godziny)",
                 'de': "Wählen Sie Start- und Endzeit (Mindestdauer 2 Stunden)",
@@ -117,8 +117,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data['step'] = 'date_confirmation'
         user_data['selected_date'] = selected_date
 
-        # Меняем цвет кнопки на красный и делаем ее неактивной
-        await query.edit_message_reply_markup(reply_markup=update_calendar_markup(query.message.reply_markup, selected_date))
+        # Меняем цвет кнопки на красный и делаем все остальные кнопки неактивными
+        await query.edit_message_reply_markup(reply_markup=disable_calendar_buttons(query.message.reply_markup, selected_date))
 
         confirmation_texts = {
             'en': f'You selected {selected_date}, correct?',
@@ -210,7 +210,7 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=yes_no_keyboard(language_code)
         )
 
-def update_calendar_markup(reply_markup, selected_date):
+def disable_calendar_buttons(reply_markup, selected_date):
     new_keyboard = []
     for row in reply_markup.inline_keyboard:
         new_row = []
@@ -218,7 +218,7 @@ def update_calendar_markup(reply_markup, selected_date):
             if button.callback_data and button.callback_data.endswith(selected_date):
                 new_row.append(InlineKeyboardButton(f"🔴 {selected_date.split('-')[2]}", callback_data='none'))
             else:
-                new_row.append(button)
+                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
         new_keyboard.append(new_row)
     return InlineKeyboardMarkup(new_keyboard)
 

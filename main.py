@@ -89,7 +89,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             time_selection_texts = {
                 'en': "Select start and end time",
                 'ru': "Выберите время начала и окончания",
-                'es': "Selecciona la hora de inicio y fin",
+                'es': "Selecciona la hora de inicio и fin",
                 'fr': "Sélectionnez l'heure de début et de fin",
                 'uk': "Виберіть час початку та закінчення",
                 'pl': "Wybierz czas rozpoczęcia i zakończenia",
@@ -116,6 +116,10 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         selected_date = query.data.split('_')[1]
         user_data['step'] = 'date_confirmation'
         user_data['selected_date'] = selected_date
+
+        # Меняем цвет кнопки на красный и делаем ее неактивной
+        await query.edit_message_reply_markup(reply_markup=update_calendar_markup(query.message.reply_markup, selected_date))
+
         confirmation_texts = {
             'en': f'You selected {selected_date}, correct?',
             'ru': f'Вы выбрали {selected_date}, правильно?',
@@ -205,6 +209,18 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
             greeting_texts.get(language_code, f'Hello {user_data["name"]}! Do you want to see available dates?'),
             reply_markup=yes_no_keyboard(language_code)
         )
+
+def update_calendar_markup(reply_markup, selected_date):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            if button.callback_data and button.callback_data.endswith(selected_date):
+                new_row.append(InlineKeyboardButton(f"🔴 {selected_date.split('-')[2]}", callback_data='none'))
+            else:
+                new_row.append(button)
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(BOT_TOKEN).build()

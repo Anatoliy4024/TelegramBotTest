@@ -49,8 +49,11 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': 'Cargando...',
             'fr': 'Chargement...',
             'uk': 'Завантаження...',
-            'pl': 'Ładowanie...'
+            'pl': 'Ładowanie...',
+            'de': 'Laden...',  # Немецкий
+            'it': 'Caricamento...'  # Итальянский
         }
+
         loading_message = await query.message.reply_text(
             loading_texts.get(language_code, 'Loading...'),
         )
@@ -66,14 +69,17 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=update.effective_chat.id, text="Video file not found.")
             await loading_message.delete()
 
-        greeting_texts = {
+        loading_texts = {
             'en': 'Hello! What is your name?',
             'ru': 'Привет! Как вас зовут?',
             'es': '¡Hola! ¿Cómo te llamas?',
             'fr': 'Salut! Quel est votre nom ?',
             'uk': 'Привіт! Як вас звати?',
-            'pl': 'Cześć! Jak masz na imię?'
+            'pl': 'Cześć! Jak masz na imię?',
+            'de': 'Hallo! Wie heißt du?',  # Немецкий
+            'it': 'Ciao! Come ti chiami?'  # Итальянский
         }
+
         await query.message.reply_text(greeting_texts.get(language_code, 'Hello! What is your name?'))
 
     elif query.data == 'yes':

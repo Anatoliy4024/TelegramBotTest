@@ -37,98 +37,118 @@ def yes_no_keyboard(language):
     ]
     return InlineKeyboardMarkup(keyboard)
 
-def generate_month_name(target_month,language='en'):
-    # Заголовок с месяцем и годом
-    month_names = {
-        'en': calendar.month_name[target_month],
-        'ru': calendar.month_name[target_month],
-        'es': calendar.month_name[target_month],
-        'fr': calendar.month_name[target_month],
-        'uk': calendar.month_name[target_month],
-        'pl': calendar.month_name[target_month]
+def generate_month_name(month, language):
+    months = {
+        'en': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        'ru': ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+        'es': ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+        'fr': ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+        'uk': ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"],
+        'pl': ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"]
     }
-    month_name = month_names.get(language, calendar.month_name[target_month])
+    return months.get(language, months['en'])[month - 1]
 
-    return month_name
-
+# def generate_calendar_keyboard(month_offset=0, language='en'):
+#     today = datetime.today()
+#     start_date = today + timedelta(days=1)  # Завтрашний день
+#     end_date = start_date + timedelta(days=60)  # Два месяца вперед
+#
+#     calendar_buttons = []
+#
+#     month_name = generate_month_name(start_date.month, language)
+#     calendar_buttons.append([InlineKeyboardButton(f"{month_name} {start_date.year}", callback_data='none')])
+#
+#     days_of_week = {
+#         'en': ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+#         'ru': ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+#         'es': ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+#         'fr': ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+#         'uk': ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"],
+#         'pl': ["Pon", "Wt", "Śr", "Czw", "Pią", "Sob", "Niedz"]
+#     }
+#     days_of_week_translated = days_of_week.get(language, ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+#     calendar_buttons.append([InlineKeyboardButton(day, callback_data='none') for day in days_of_week_translated])
+#
+#     current_date = start_date
+#     while current_date <= end_date:
+#         week_buttons = []
+#         for i in range(7):
+#             if current_date > end_date:
+#                 week_buttons.append(InlineKeyboardButton(" ", callback_data='none'))
+#             else:
+#                 date_str = current_date.strftime('%Y-%m-%d')
+#                 week_buttons.append(InlineKeyboardButton(f"{current_date.day}", callback_data=f'date_{date_str}'))
+#                 current_date += timedelta(days=1)
+#         calendar_buttons.append(week_buttons)
+#
+#     # Добавление кнопок для навигации по месяцам
+#     previous_month_button = InlineKeyboardButton("<", callback_data=f"prev_month_{month_offset - 1}")
+#     next_month_button = InlineKeyboardButton(">", callback_data=f"next_month_{month_offset + 1}")
+#     navigation_row = [previous_month_button, next_month_button]
+#     calendar_buttons.append(navigation_row)
+#
+#     return InlineKeyboardMarkup(calendar_buttons)
 
 def generate_calendar_keyboard(month_offset=0, language='en'):
     today = datetime.today()
-    target_month = today.month + month_offset
-    year = today.year
-    if target_month > 12:
-        target_month -= 12
-        year += 1
-    elif target_month < 1:
-        target_month += 12
-        year -= 1
+    base_month = today.month + month_offset
+    base_year = today.year
 
-    # Генерация кнопок дней месяца
-    calendar_buttons = []
+    if base_month > 12:
+        base_month -= 12
+        base_year += 1
+    elif base_month < 1:
+        base_month += 12
+        base_year -= 1
 
-    month_name = generate_month_name(target_month, language)
+    first_of_month = datetime(base_year, base_month, 1)
+    last_day = calendar.monthrange(first_of_month.year, first_of_month.month)[1]
+    last_of_month = first_of_month.replace(day=last_day)
 
-    calendar_buttons.append([InlineKeyboardButton(f"{month_name} {year}", callback_data='none')])
-
-    first_day = datetime(year, target_month, 1)
-    last_day = (first_day + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-
-    # Дни недели (заголовки)
+    month_name = generate_month_name(first_of_month.month, language)
     days_of_week = {
         'en': ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         'ru': ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
-        'es': ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
-        'fr': ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
-        'uk': ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"],
-        'pl': ["Pon", "Wt", "Śr", "Czw", "Pią", "Sob", "Niedz"]
+        # Добавьте другие языковые опции по аналогии
     }
-    days_of_week_translated = days_of_week.get(language, ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
-    calendar_buttons.append([InlineKeyboardButton(day, callback_data='none') for day in days_of_week_translated])
 
-    for week in calendar.monthcalendar(year, target_month):
-        week_buttons = []
-        for day in week:
-            if day == 0:
-                week_buttons.append(InlineKeyboardButton(" ", callback_data='none'))
-            else:
-                date_str = f"{year}-{target_month:02}-{day:02}"
-                if target_month == today.month and day <= today.day:
-                    week_buttons.append(InlineKeyboardButton(f"🔴{day}", callback_data='none'))
-                else:
-                    week_buttons.append(InlineKeyboardButton(f"🟢{day}", callback_data=f'date_{date_str}'))
+    calendar_buttons = [
+        [InlineKeyboardButton(f"{month_name} {first_of_month.year}", callback_data='none')],
+        [InlineKeyboardButton(day, callback_data='none') for day in days_of_week.get(language, days_of_week['en'])]
+    ]
+
+    # Подготовка первой строки с пустыми кнопками до первого дня месяца
+    first_weekday = first_of_month.weekday()
+    first_weekday = (first_weekday + 6) % 7  # понедельник как первый день недели
+    week_buttons = [InlineKeyboardButton(" ", callback_data='none') for _ in range(first_weekday)]
+
+    current_date = first_of_month
+    while current_date <= last_of_month:
+        if len(week_buttons) == 7:
+            calendar_buttons.append(week_buttons)
+            week_buttons = []
+
+        day_button = InlineKeyboardButton(str(current_date.day), callback_data=f'date_{current_date.strftime("%Y-%m-%d")}')
+        week_buttons.append(day_button)
+        current_date += timedelta(days=1)
+
+    # Добавить последнюю неделю, если она не полная
+    if week_buttons:
+        week_buttons.extend([InlineKeyboardButton(" ", callback_data='none') for _ in range(7 - len(week_buttons))])
         calendar_buttons.append(week_buttons)
 
-    # Определяем предыдущий и следующий месяц
-    prev_month = datetime(year, target_month, 1) - timedelta(days=1)
-    next_month = datetime(year, target_month, 1) + timedelta(days=31)
-    prev_month_name = calendar.month_name[prev_month.month]
-    next_month_name = calendar.month_name[next_month.month]
-
-    # Кнопки для навигации по месяцам с названиями месяцев
-    navigation_texts = {
-        'en': (f"◀️ {prev_month_name}", f"{next_month_name} ▶️"),
-        'ru': (f"◀️ {prev_month_name}", f"{next_month_name} ▶️"),
-        'es': (f"◀️ {prev_month_name}", f"{next_month_name} ▶️"),
-        'fr': (f"◀️ {prev_month_name}", f"{next_month_name} ▶️"),
-        'uk': (f"◀️ {prev_month_name}", f"{next_month_name} ▶️"),
-        'pl': (f"◀️ {prev_month_name}", f"{next_month_name} ▶️")
-    }
-    prev_text, next_text = navigation_texts.get(language, (f"◀️ {prev_month_name}", f"{next_month_name} ▶️"))
-
-    navigation = [
-        InlineKeyboardButton(prev_text, callback_data=f'prev_month_{month_offset - 1}') if month_offset > -1 else InlineKeyboardButton(" ", callback_data='none'),
-        InlineKeyboardButton(next_text, callback_data=f'next_month_{month_offset + 1}') if month_offset < 2 else InlineKeyboardButton(" ", callback_data='none')
-    ]
-    calendar_buttons.append(navigation)
+    # Навигационные кнопки
+    prev_month_button = InlineKeyboardButton("<", callback_data=f"prev_month_{month_offset - 1}") if month_offset > -1 else InlineKeyboardButton(" ", callback_data="none")
+    next_month_button = InlineKeyboardButton(">", callback_data=f"next_month_{month_offset + 1}") if month_offset < 2 else InlineKeyboardButton(" ", callback_data="none")
+    calendar_buttons.append([prev_month_button, next_month_button])
 
     return InlineKeyboardMarkup(calendar_buttons)
 
+
 def generate_time_selection_keyboard(language):
-    # Начальное и конечное время
     start_time = datetime.strptime('08:00', '%H:%M')
     end_time = datetime.strptime('20:00', '%H:%M')
 
-    # Генерация кнопок времени с шагом в 30 минут
     time_buttons = []
     current_time = start_time
 
@@ -137,23 +157,7 @@ def generate_time_selection_keyboard(language):
         time_buttons.append(InlineKeyboardButton(time_str, callback_data=f'time_{time_str}'))
         current_time += timedelta(minutes=30)
 
-    # Разбиение кнопок на несколько строк
-    num_buttons_per_row = 4  # Количество кнопок в строке
+    num_buttons_per_row = 4
     rows = [time_buttons[i:i + num_buttons_per_row] for i in range(0, len(time_buttons), num_buttons_per_row)]
 
-    # Надпись на клавиатуре
-    time_selection_texts = {
-        'en': "Select start and end time",
-        'ru': "Выберите время начала и окончания",
-        'es': "Selecciona la hora de inicio y fin",
-        'fr': "Sélectionnez l'heure de début et de fin",
-        'uk': "Виберіть час початку та закінчення",
-        'pl': "Wybierz czas rozpoczęcia i zakończenia"
-    }
-    selection_text = time_selection_texts.get(language, "Select start and end time")
-
-    keyboard = [
-        [InlineKeyboardButton(selection_text, callback_data='none')]
-    ] + rows
-
-    return InlineKeyboardMarkup(keyboard)
+    return InlineKeyboardMarkup(rows)

@@ -87,17 +87,17 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif user_data['step'] == 'date_confirmation':
             user_data['step'] = 'time_selection'
             time_selection_texts = {
-                'en': "Select start and end time",
-                'ru': "Выберите время начала и окончания",
-                'es': "Selecciona la hora de inicio и fin",
-                'fr': "Sélectionnez l'heure de début et de fin",
-                'uk': "Виберіть час початку та закінчення",
-                'pl': "Wybierz czas rozpoczęcia i zakończenia",
-                'de': "Wählen Sie Start- und Endzeit",
-                'it': "Seleziona l'ora di inizio e fine"
+                'en': "Select start and end time (minimum duration 2 hours)",
+                'ru': "Выберите время начала и окончания (минимальная продолжительность 2 часа)",
+                'es': "Selecciona la hora de inicio y fin (duración mínima 2 horas)",
+                'fr': "Sélectionnez l'heure de début et de fin (durée minimale 2 heures)",
+                'uk': "Виберіть час початку та закінчення (мінімальна тривалість 2 години)",
+                'pl': "Wybierz czas rozpoczęcia i zakończenia (minimalny czas trwania 2 godziny)",
+                'de': "Wählen Sie Start- und Endzeit (Mindestdauer 2 Stunden)",
+                'it': "Seleziona l'ora di inizio e fine (durata minima 2 ore)"
             }
             await query.message.reply_text(
-                time_selection_texts.get(user_data['language'], "Select start and end time"),
+                time_selection_texts.get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
                 reply_markup=generate_time_selection_keyboard(user_data['language'])  # Передаем язык в клавиатуру
             )
 

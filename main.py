@@ -69,7 +69,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=update.effective_chat.id, text="Video file not found.")
             await loading_message.delete()
 
-        loading_texts = {
+        # Словарь приветственных фраз на разных языках
+        greeting_texts = {
             'en': 'Hello! What is your name?',
             'ru': 'Привет! Как вас зовут?',
             'es': '¡Hola! ¿Cómo te llamas?',

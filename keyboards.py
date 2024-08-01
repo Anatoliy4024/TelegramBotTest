@@ -37,6 +37,21 @@ def yes_no_keyboard(language):
     ]
     return InlineKeyboardMarkup(keyboard)
 
+def generate_month_name(target_month,language='en'):
+    # Заголовок с месяцем и годом
+    month_names = {
+        'en': calendar.month_name[target_month],
+        'ru': calendar.month_name[target_month],
+        'es': calendar.month_name[target_month],
+        'fr': calendar.month_name[target_month],
+        'uk': calendar.month_name[target_month],
+        'pl': calendar.month_name[target_month]
+    }
+    month_name = month_names.get(language, calendar.month_name[target_month])
+
+    return month_name
+
+
 def generate_calendar_keyboard(month_offset=0, language='en'):
     today = datetime.today()
     target_month = today.month + month_offset
@@ -51,16 +66,8 @@ def generate_calendar_keyboard(month_offset=0, language='en'):
     # Генерация кнопок дней месяца
     calendar_buttons = []
 
-    # Заголовок с месяцем и годом
-    month_names = {
-        'en': calendar.month_name[target_month],
-        'ru': calendar.month_name[target_month],
-        'es': calendar.month_name[target_month],
-        'fr': calendar.month_name[target_month],
-        'uk': calendar.month_name[target_month],
-        'pl': calendar.month_name[target_month]
-    }
-    month_name = month_names.get(language, calendar.month_name[target_month])
+    month_name = generate_month_name(target_month, language)
+
     calendar_buttons.append([InlineKeyboardButton(f"{month_name} {year}", callback_data='none')])
 
     first_day = datetime(year, target_month, 1)

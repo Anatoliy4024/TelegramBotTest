@@ -147,9 +147,11 @@ async def show_calendar(query, month_offset, language):
     elif month_offset > 2:
         month_offset = 2
 
+    calendar_keyboard = generate_calendar_keyboard(month_offset, language)  # Передаем язык в календарь
+
     await query.message.reply_text(
         'Select a date:',
-        reply_markup=generate_calendar_keyboard(month_offset, language)  # Передаем язык в календарь
+        reply_markup=calendar_keyboard
     )
 
 async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE):

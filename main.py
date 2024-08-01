@@ -50,10 +50,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'fr': 'Chargement...',
             'uk': 'Завантаження...',
             'pl': 'Ładowanie...',
-            'de': 'Laden...',  # Немецкий
-            'it': 'Caricamento...'  # Итальянский
+            'de': 'Laden...',
+            'it': 'Caricamento...'
         }
-
         loading_message = await query.message.reply_text(
             loading_texts.get(language_code, 'Loading...'),
         )
@@ -69,7 +68,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=update.effective_chat.id, text="Video file not found.")
             await loading_message.delete()
 
-        # Словарь приветственных фраз на разных языках
         greeting_texts = {
             'en': 'Hello! What is your name?',
             'ru': 'Привет! Как вас зовут?',
@@ -77,10 +75,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'fr': 'Salut! Quel est votre nom ?',
             'uk': 'Привіт! Як вас звати?',
             'pl': 'Cześć! Jak masz na imię?',
-            'de': 'Hallo! Wie heißt du?',  # Немецкий
-            'it': 'Ciao! Come ti chiami?'  # Итальянский
+            'de': 'Hallo! Wie heißt du?',
+            'it': 'Ciao! Come ti chiami?'
         }
-
         await query.message.reply_text(greeting_texts.get(language_code, 'Hello! What is your name?'))
 
     elif query.data == 'yes':
@@ -95,7 +92,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 'es': "Selecciona la hora de inicio y fin",
                 'fr': "Sélectionnez l'heure de début et de fin",
                 'uk': "Виберіть час початку та закінчення",
-                'pl': "Wybierz czas rozpoczęcia i zakończenia"
+                'pl': "Wybierz czas rozpoczęcia i zakończenia",
+                'de': "Wählen Sie Start- und Endzeit",
+                'it': "Seleziona l'ora di inizio e fine"
             }
             await query.message.reply_text(
                 time_selection_texts.get(user_data['language'], "Select start and end time"),
@@ -123,7 +122,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': f'Seleccionaste {selected_date}, ¿correcto?',
             'fr': f'Vous avez sélectionné {selected_date}, correct ?',
             'uk': f'Ви вибрали {selected_date}, правильно?',
-            'pl': f'Wybrałeś {selected_date}, poprawne?'
+            'pl': f'Wybrałeś {selected_date}, poprawne?',
+            'de': f'Sie haben {selected_date} gewählt, richtig?',
+            'it': f'Hai selezionato {selected_date}, corretto?'
         }
         await query.message.reply_text(
             confirmation_texts.get(user_data['language'], f'You selected {selected_date}, correct?'),
@@ -156,8 +157,19 @@ async def show_calendar(query, month_offset, language):
 
     calendar_keyboard = generate_calendar_keyboard(month_offset, language)  # Передаем язык в календарь
 
+    select_date_text = {
+        'en': "Select a date:",
+        'ru': "Выберите дату:",
+        'es': "Seleccione una fecha:",
+        'fr': "Sélectionnez une date:",
+        'uk': "Виберіть дату:",
+        'pl': "Wybierz datę:",
+        'de': "Wählen Sie ein Datum:",
+        'it': "Seleziona una data:"
+    }
+
     await query.message.reply_text(
-        'Select a date:',
+        select_date_text.get(language, 'Select a date:'),
         reply_markup=calendar_keyboard
     )
 
@@ -178,7 +190,9 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'es': f'Hola {user_data["name"]}! ¿Quieres ver las fechas disponibles?',
         'fr': f'Bonjour {user_data["name"]}! Voulez-vous voir les dates disponibles?',
         'uk': f'Привіт, {user_data["name"]}! Хочеш подивитися які дати доступні?',
-        'pl': f'Cześć {user_data["name"]}! Chcesz zobaczyć dostępne daty?'
+        'pl': f'Cześć {user_data["name"]}! Chcesz zobaczyć dostępne daty?',
+        'de': f'Hallo {user_data["name"]}! Möchten Sie verfügbare Daten sehen?',
+        'it': f'Ciao {user_data["name"]}! Vuoi vedere le date disponibili?'
     }
 
     if update.message:

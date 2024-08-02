@@ -4,7 +4,7 @@ from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandle
 import logging
 import os
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # Добавлен импорт datetime
 
 from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard
 
@@ -59,7 +59,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': 'La hora de finalización se ha establecido en {}. Confirma tu selección.',
             'fr': 'L\'heure de fin est fixée à {}. Confirmez votre sélection.',
             'uk': 'Час закінчення встановлено на {}. Підтвердіть свій вибір.',
-            'pl': 'Czas zakończenia ustawiono na {}. Potwierdź swój wybór.',
+            'pl': 'Czas zakończenia ustawiono на {}. Potwierdź swój wybór.',
             'de': 'Endzeit auf {} gesetzt. Bestätigen Sie Ihre Auswahl.',
             'it': 'L\'ora di fine è stata impostata su {}. Conferma la tua selezione.'
         }
@@ -67,14 +67,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     time_selection_headers = {
         'start': {
-            'en': 'Planning to start at...',
-            'ru': 'Планирую начать в...',
-            'es': 'Planeo empezar a...',
-            'fr': 'Je prévois de commencer à...',
-            'uk': 'Планую почати о...',
-            'pl': 'Planuję zacząć o...',
-            'de': 'Ich plane um...',
-            'it': 'Prevedo di iniziare alle...'
+            'en': 'Select start and end time (minimum duration 2 hours)',
+            'ru': 'Выберите время начала и окончания (минимальная продолжительность 2 часа)',
+            'es': 'Selecciona la hora de inicio y fin (duración mínima 2 horas)',
+            'fr': 'Sélectionnez l\'heure de début et de fin (durée minimale 2 heures)',
+            'uk': 'Виберіть час початку та закінчення (мінімальна тривалість 2 години)',
+            'pl': 'Wybierz czas rozpoczęcia i zakończenia (minimalny czas trwania 2 godziny)',
+            'de': 'Wählen Sie Start- und Endzeit (Mindestdauer 2 Stunden)',
+            'it': 'Seleziona l\'ora di inizio e fine (durata minima 2 ore)'
         },
         'end': {
             'en': 'Planning to end around...',
@@ -86,17 +86,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'de': 'Ich plane zu beenden um...',
             'it': 'Prevedo di finire intorno alle...'
         }
-    }
-
-    time_selection_instruction = {
-        'en': "Select start and end time (minimum duration 2 hours)",
-        'ru': "Выберите время начала и окончания (минимальная продолжительность 2 часа)",
-        'es': "Selecciona la hora de inicio y fin (duración mínima 2 horas)",
-        'fr': "Sélectionnez l'heure de début et de fin (durée minimale 2 heures)",
-        'uk': "Виберіть час початку та закінчення (мінімальна тривалість 2 години)",
-        'pl': "Wybierz czas rozpoczęcia i zakończenia (minimalny czas trwania 2 godziny)",
-        'de': "Wählen Sie Start- und Endzeit (Mindestdauer 2 Stunden)",
-        'it': "Seleziona l'ora di inizio e fine (durata minima 2 ore)"
     }
 
     if query.data.startswith('lang_'):
@@ -159,8 +148,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif user_data['step'] == 'date_confirmation':
             user_data['step'] = 'time_selection'
             await query.message.reply_text(
-                time_selection_instruction.get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
-                reply_markup=generate_time_selection_keyboard(user_data['language'], 'start')
+                time_selection_headers['start'].get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
+                reply_markup=generate_time_selection_keyboard(user_data['language'], 'start')  # Передаем язык и этап
             )
 
     elif query.data == 'no':
@@ -173,6 +162,13 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif user_data['step'] == 'name_received':
             user_data['step'] = 'greeting'
             await start(update, context)
+        elif user_data['step'] == 'time_selection':  # Reset to time selection if 'no' is pressed during time selection confirmation
+            user_data.pop('start_time', None)
+            user_data.pop('end_time', None)
+            await query.message.reply_text(
+                time_selection_headers['start'].get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
+                reply_markup=generate_time_selection_keyboard(user_data['language'], 'start')  # Передаем язык и этап
+            )
 
     elif query.data.startswith('date_'):
         selected_date = query.data.split('_')[1]
@@ -203,7 +199,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user_data['start_time'] = selected_time
             await query.message.reply_text(
                 time_set_texts['start_time'].get(user_data['language'], 'Start time set to {}. Now select end time.').format(selected_time),
-                reply_markup=generate_time_selection_keyboard(user_data['language'], 'end', user_data['start_time'])
+                reply_markup=generate_time_selection_keyboard(user_data['language'], 'end', user_data['start_time'])  # Передаем язык и этап
             )
         else:
             user_data['end_time'] = selected_time
@@ -219,6 +215,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"Minimum duration is 2 hours. Please select an end time at least 2 hours after the start time.",
                     reply_markup=generate_time_selection_keyboard(user_data['language'], 'end', user_data['start_time'])
                 )
+        await query.edit_message_reply_markup(reply_markup=disable_time_buttons(query.message.reply_markup, selected_time))  # Disable time buttons after selection
 
     elif query.data.startswith('prev_month_') or query.data.startswith('next_month_'):
         month_offset = int(query.data.split('_')[2])  # Преобразуем в целое число
@@ -290,6 +287,18 @@ def disable_calendar_buttons(reply_markup, selected_date):
         for button in row:
             if button.callback_data and button.callback_data.endswith(selected_date):
                 new_row.append(InlineKeyboardButton(f"🔴 {selected_date.split('-')[2]}", callback_data='none'))
+            else:
+                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)
+
+def disable_time_buttons(reply_markup, selected_time):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            if button.callback_data and button.callback_data.endswith(selected_time):
+                new_row.append(InlineKeyboardButton(f"🔴 {selected_time}", callback_data='none'))
             else:
                 new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
         new_keyboard.append(new_row)

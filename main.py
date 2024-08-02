@@ -13,7 +13,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 
-
 # Пути к видеофайлам
 VIDEO_PATHS = [
     'media/IMG_5981 (online-video-cutter.com).mp4',

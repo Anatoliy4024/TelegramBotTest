@@ -4,22 +4,14 @@ import calendar
 
 def generate_month_name(month, language):
     months = {
-        'en': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
-               "November", "December"],
-        'ru': ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь",
-               "Декабрь"],
-        'es': ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre",
-               "Noviembre", "Diciembre"],
-        'fr': ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre",
-               "Novembre", "Décembre"],
-        'uk': ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень",
-               "Жовтень", "Листопад", "Грудень"],
-        'pl': ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień",
-               "Paździerник", "Listopад", "Grudzień"],
-        'de': ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober",
-               "November", "Dezember"],
-        'it': ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre",
-               "Novembre", "Dicembre"]
+        'en': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        'ru': ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+        'es': ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+        'fr': ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+        'uk': ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"],
+        'pl': ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopад", "Grudzień"],
+        'de': ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+        'it': ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]
     }
     return months[language][month - 1]
 
@@ -88,7 +80,6 @@ def generate_calendar_keyboard(month_offset=0, language='en'):
 
     return InlineKeyboardMarkup(calendar_buttons)
 
-
 def generate_time_selection_keyboard(language, stage='start', start_time=None):
     start_time_dt = datetime.strptime('08:00', '%H:%M')
     end_time_dt = datetime.strptime('22:00', '%H:%M')
@@ -98,7 +89,7 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
 
     while current_time <= end_time_dt:
         time_str = current_time.strftime('%H:%M')
-        if stage == 'start' and current_time >= datetime.strptime('20:30', '%H:%M'):
+        if stage == 'start' and time_str in ['20:30', '21:00', '21:30', '22:00']:
             time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
         elif stage == 'end' and start_time:
             start_time_dt = datetime.strptime(start_time, '%H:%M')
@@ -146,18 +137,6 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
     ] + rows
 
     return InlineKeyboardMarkup(keyboard)
-
-def disable_time_buttons(reply_markup, selected_time):
-    new_keyboard = []
-    for row in reply_markup.inline_keyboard:
-        new_row = []
-        for button in row:
-            if button.callback_data and button.callback_data.endswith(selected_time):
-                new_row.append(InlineKeyboardButton(f"🔴 {selected_time}", callback_data='none'))
-            else:
-                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
-        new_keyboard.append(new_row)
-    return InlineKeyboardMarkup(new_keyboard)
 
 def language_selection_keyboard():
     keyboard = [

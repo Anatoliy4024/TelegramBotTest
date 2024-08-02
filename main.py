@@ -4,7 +4,7 @@ from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandle
 import logging
 import os
 import asyncio
-from datetime import datetime, timedelta  # Добавлен импорт datetime
+from datetime import datetime, timedelta
 
 from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard
 
@@ -59,7 +59,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': 'La hora de finalización se ha establecido en {}. Confirma tu selección.',
             'fr': 'L\'heure de fin est fixée à {}. Confirmez votre sélection.',
             'uk': 'Час закінчення встановлено на {}. Підтвердіть свій вибір.',
-            'pl': 'Czas zakończenia ustawiono на {}. Potwierdź swój wybór.',
+            'pl': 'Czas zakończenia ustawiono na {}. Potwierdź swój wybór.',
             'de': 'Endzeit auf {} gesetzt. Bestätigen Sie Ihre Auswahl.',
             'it': 'L\'ora di fine è stata impostata su {}. Conferma la tua selezione.'
         }

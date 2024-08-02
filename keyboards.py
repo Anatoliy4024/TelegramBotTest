@@ -100,7 +100,7 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
             else:
                 time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))
         else:
-            if stage == 'start' and current_time >= datetime.strptime('20:30', '%H:%M'):
+            if current_time >= datetime.strptime('20:30', '%H:%M'):
                 time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
             else:
                 time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))
@@ -140,27 +140,24 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
     return InlineKeyboardMarkup(keyboard)
 
 def generate_person_selection_keyboard(language):
-    buttons = []
-    for i in range(2, 21):
-        buttons.append(InlineKeyboardButton(f"{i}", callback_data=f"persons_{i}"))
+    person_buttons = [InlineKeyboardButton(f"{i}", callback_data=f'persons_{i}') for i in range(2, 21)]
 
-    rows = [buttons[i:i + 4] for i in range(0, len(buttons), 4)]
+    num_buttons_per_row = 5
+    rows = [person_buttons[i:i + num_buttons_per_row] for i in range(0, len(person_buttons), num_buttons_per_row)]
 
-    person_selection_texts = {
-        'en': "Select the number of persons (2-20):",
-        'ru': "Выберите количество персон (2-20):",
-        'es': "Seleccione el número de personas (2-20):",
-        'fr': "Sélectionnez le nombre de personnes (2-20):",
-        'uk': "Виберіть кількість осіб (2-20):",
-        'pl': "Wybierz liczbę osób (2-20):",
-        'de': "Wählen Sie die Anzahl der Personen (2-20):",
-        'it': "Seleziona il numero di persone (2-20):"
+    select_persons_text = {
+        'en': "Select number of persons:",
+        'ru': "Выберите количество персон:",
+        'es': "Seleccione el número de personas:",
+        'fr': "Sélectionnez le nombre de personnes :",
+        'uk': "Виберіть кількість осіб:",
+        'pl': "Wybierz liczbę osób:",
+        'de': "Wählen Sie die Anzahl der Personen:",
+        'it': "Seleziona il numero di persone:"
     }
 
-    selection_text = person_selection_texts.get(language, "Select the number of persons (2-20):")
-
     keyboard = [
-        [InlineKeyboardButton(selection_text, callback_data='none')]
+        [InlineKeyboardButton(select_persons_text.get(language, 'Select number of persons:'), callback_data='none')]
     ] + rows
 
     return InlineKeyboardMarkup(keyboard)
@@ -201,3 +198,39 @@ def yes_no_keyboard(language):
         ]
     ]
     return InlineKeyboardMarkup(keyboard)
+
+def disable_calendar_buttons(reply_markup, selected_date):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            if button.callback_data and button.callback_data.endswith(selected_date):
+                new_row.append(InlineKeyboardButton(f"🔴 {selected_date.split('-')[2]}", callback_data='none'))
+            else:
+                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)
+
+def disable_time_buttons(reply_markup, selected_time):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            if button.callback_data and button.callback_data.endswith(selected_time):
+                new_row.append(InlineKeyboardButton(f"🔴 {selected_time}", callback_data='none'))
+            else:
+                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)
+
+def disable_person_buttons(reply_markup, selected_persons):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            if button.callback_data and button.callback_data.endswith(str(selected_persons)):
+                new_row.append(InlineKeyboardButton(f"🔴 {selected_persons}", callback_data='none'))
+            else:
+                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)

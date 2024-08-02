@@ -4,9 +4,9 @@ from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandle
 import logging
 import os
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # Добавлен импорт datetime
 
-from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard, generate_person_selection_keyboard
+from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard
 
 # Включаем логирование
 logging.basicConfig(
@@ -59,7 +59,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': 'La hora de finalización se ha establecido en {}. Confirma tu selección.',
             'fr': 'L\'heure de fin est fixée à {}. Confirmez votre sélection.',
             'uk': 'Час закінчення встановлено на {}. Підтвердіть свій вибір.',
-            'pl': 'Czas zakończenia ustawiono na {}. Potwierdź swój wybór.',
+            'pl': 'Czas zakończenia ustawiono на {}. Potwierdź swój wybór.',
             'de': 'Endzeit auf {} gesetzt. Bestätigen Sie Ihre Auswahl.',
             'it': 'L\'ora di fine è stata impostata su {}. Conferma la tua selezione.'
         }
@@ -86,17 +86,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'de': 'Ich plane zu beenden um...',
             'it': 'Prevedo di finire intorno alle...'
         }
-    }
-
-    person_selection_texts = {
-        'en': 'Select the number of persons (2-20):',
-        'ru': 'Выберите количество персон (2-20):',
-        'es': 'Seleccione el número de personas (2-20):',
-        'fr': 'Sélectionnez le nombre de personnes (2-20):',
-        'uk': 'Виберіть кількість осіб (2-20):',
-        'pl': 'Wybierz liczbę osób (2-20):',
-        'de': 'Wählen Sie die Anzahl der Personen (2-20):',
-        'it': 'Seleziona il numero di persone (2-20):'
     }
 
     if query.data.startswith('lang_'):
@@ -143,7 +132,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': '¡Hola! ¿Cómo te llamas?',
             'fr': 'Salut! Quel est votre nom ?',
             'uk': 'Привіт! Як вас звати?',
-            'pl': 'Cześć! Jak masz na imię?',
+            'pl': 'Cześć! Jak masz na ім\'я?',
             'de': 'Hallo! Wie heißt du?',
             'it': 'Ciao! Come ti chiami?'
         }
@@ -162,12 +151,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 time_selection_headers['start'].get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
                 reply_markup=generate_time_selection_keyboard(user_data['language'], 'start')  # Передаем язык и этап
             )
-        elif user_data['step'] == 'time_selection_confirmation':
-            user_data['step'] = 'person_selection'
-            await query.message.reply_text(
-                person_selection_texts.get(user_data['language'], "Select the number of persons (2-20):"),
-                reply_markup=generate_person_selection_keyboard(user_data['language'])
-            )
 
     elif query.data == 'no':
         if user_data['step'] == 'calendar':
@@ -185,6 +168,12 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.reply_text(
                 time_selection_headers['start'].get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
                 reply_markup=generate_time_selection_keyboard(user_data['language'], 'start')  # Передаем язык и этап
+            )
+        elif user_data['step'] == 'people_selection':  # Reset to people selection if 'no' is pressed during people selection confirmation
+            user_data.pop('num_people', None)
+            await query.message.reply_text(
+                "Please select the number of people:",
+                reply_markup=generate_people_selection_keyboard(user_data['language'])
             )
 
     elif query.data.startswith('date_'):
@@ -227,7 +216,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     time_set_texts['end_time'].get(user_data['language'], 'End time set to {}. Confirm your selection.').format(selected_time),
                     reply_markup=yes_no_keyboard(user_data.get('language', 'en'))
                 )
-                user_data['step'] = 'time_selection_confirmation'  # Добавлено изменение шага на подтверждение выбора времени
             else:
                 await query.message.reply_text(
                     f"Minimum duration is 2 hours. Please select an end time at least 2 hours after the start time.",
@@ -239,6 +227,28 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         month_offset = int(query.data.split('_')[2])  # Преобразуем в целое число
         user_data['month_offset'] = month_offset
         await show_calendar(query, month_offset, user_data.get('language', 'en'))
+
+    elif query.data.startswith('people_'):
+        num_people = int(query.data.split('_')[1])
+        user_data['num_people'] = num_people
+        user_data['step'] = 'people_confirmation'
+
+        await query.edit_message_reply_markup(reply_markup=disable_people_buttons(query.message.reply_markup, num_people))
+
+        confirmation_texts = {
+            'en': f'You selected {num_people} people, correct?',
+            'ru': f'Вы выбрали {num_people} человек, правильно?',
+            'es': f'Seleccionaste {num_people} personas, ¿correcto?',
+            'fr': f'Vous avez sélectionné {num_people} personnes, correct ?',
+            'uk': f'Ви вибрали {num_people} людей, правильно?',
+            'pl': f'Wybrałeś {num_people} osób, poprawne?',
+            'de': f'Sie haben {num_people} Personen gewählt, richtig?',
+            'it': f'Hai selezionato {num_people} persone, corretto?'
+        }
+        await query.message.reply_text(
+            confirmation_texts.get(user_data['language'], f'You selected {num_people} people, correct?'),
+            reply_markup=yes_no_keyboard(user_data['language'])
+        )
 
 async def show_calendar(query, month_offset, language):
     # Ограничиваем смещение месяцев: один месяц назад и два месяца вперед
@@ -317,6 +327,39 @@ def disable_time_buttons(reply_markup, selected_time):
         for button in row:
             if button.callback_data and button.callback_data.endswith(selected_time):
                 new_row.append(InlineKeyboardButton(f"🔴 {selected_time}", callback_data='none'))
+            else:
+                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)
+
+def generate_people_selection_keyboard(language):
+    people_buttons = [InlineKeyboardButton(str(i), callback_data=f'people_{i}') for i in range(2, 22)]
+    rows = [people_buttons[i:i + 5] for i in range(0, len(people_buttons), 5)]
+
+    select_people_text = {
+        'en': 'Please select the number of people:',
+        'ru': 'Пожалуйста, выберите количество человек:',
+        'es': 'Por favor, seleccione el número de personas:',
+        'fr': 'Veuillez sélectionner le nombre de personnes :',
+        'uk': 'Будь ласка, виберіть кількість людей:',
+        'pl': 'Proszę wybrać liczbę osób:',
+        'de': 'Bitte wählen Sie die Anzahl der Personen:',
+        'it': 'Si prega di selezionare il numero di persone:'
+    }
+
+    keyboard = [
+        [InlineKeyboardButton(select_people_text.get(language, 'Please select the number of people:'), callback_data='none')]
+    ] + rows
+
+    return InlineKeyboardMarkup(keyboard)
+
+def disable_people_buttons(reply_markup, selected_people):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            if button.callback_data and button.callback_data.endswith(str(selected_people)):
+                new_row.append(InlineKeyboardButton(f"🔴 {selected_people}", callback_data='none'))
             else:
                 new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
         new_keyboard.append(new_row)

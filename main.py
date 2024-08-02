@@ -90,6 +90,17 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
     }
 
+    people_selection_headers = {
+        'en': 'How many people are attending?',
+        'ru': 'На сколько персон твоя встреча?',
+        'es': '¿Cuántas personas asistirán?',
+        'fr': 'Combien de personnes participent?',
+        'uk': 'На скільки персон твоя зустріч?',
+        'pl': 'Ile osób będzie uczestniczyć?',
+        'de': 'Wie viele Personen nehmen teil?',
+        'it': 'Quante persone parteciperanno?'
+    }
+
     if query.data.startswith('lang_'):
         language_code = query.data.split('_')[1]
         user_data['language'] = language_code
@@ -156,7 +167,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif user_data['step'] == 'time_confirmation':
             user_data['step'] = 'people_selection'
             await query.message.reply_text(
-                'Total number of people:',
+                people_selection_headers.get(user_data['language'], 'How many people are attending?'),
                 reply_markup=generate_person_selection_keyboard(user_data['language'])
             )
 
@@ -186,7 +197,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         elif user_data['step'] == 'people_selection':
             await query.message.reply_text(
-                'Total number of people:',
+                people_selection_headers.get(user_data['language'], 'How many people are attending?'),
                 reply_markup=generate_person_selection_keyboard(user_data['language'])
             )
 

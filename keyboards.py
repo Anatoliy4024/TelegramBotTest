@@ -173,7 +173,7 @@ def yes_no_keyboard(language):
     return InlineKeyboardMarkup(keyboard)
 
 def generate_person_selection_keyboard(language):
-    person_buttons = [InlineKeyboardButton(f"{i}", callback_data=f'person_{i}') for i in range(2, 22)]
+    person_buttons = [InlineKeyboardButton(f"🟢 {i}", callback_data=f'person_{i}') for i in range(2, 22)]
     num_buttons_per_row = 4
     rows = [person_buttons[i:i + num_buttons_per_row] for i in range(0, len(person_buttons), num_buttons_per_row)]
     return InlineKeyboardMarkup(rows)

@@ -156,7 +156,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif user_data['step'] == 'time_confirmation':
             user_data['step'] = 'people_selection'
             await query.message.reply_text(
-                'Select number of people',
+                'Total number of people:',
                 reply_markup=generate_person_selection_keyboard(user_data['language'])
             )
 
@@ -186,7 +186,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         elif user_data['step'] == 'people_selection':
             await query.message.reply_text(
-                'Select number of people',
+                'Total number of people:',
                 reply_markup=generate_person_selection_keyboard(user_data['language'])
             )
 
@@ -237,6 +237,29 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     reply_markup=generate_time_selection_keyboard(user_data['language'], 'end', user_data['start_time'])
                 )
         await query.edit_message_reply_markup(reply_markup=disable_time_buttons(query.message.reply_markup, selected_time))  # Disable time buttons after selection
+
+    elif query.data.startswith('person_'):
+        selected_person = query.data.split('_')[1]
+        user_data['step'] = 'person_confirmation'
+        user_data['selected_person'] = selected_person
+
+        # Меняем цвет кнопки на красный и делаем все остальные кнопки неактивными
+        await query.edit_message_reply_markup(reply_markup=disable_person_buttons(query.message.reply_markup, selected_person))
+
+        confirmation_texts = {
+            'en': f'You selected {selected_person} people, correct?',
+            'ru': f'Вы выбрали {selected_person} человек, правильно?',
+            'es': f'Seleccionaste {selected_person} personas, ¿correcto?',
+            'fr': f'Vous avez sélectionné {selected_person} personnes, correct ?',
+            'uk': f'Ви вибрали {selected_person} людей, правильно?',
+            'pl': f'Wybrałeś {selected_person} osób, poprawne?',
+            'de': f'Sie haben {selected_person} Personen gewählt, richtig?',
+            'it': f'Hai selezionato {selected_person} persone, corretto?'
+        }
+        await query.message.reply_text(
+            confirmation_texts.get(user_data['language'], f'You selected {selected_person} people, correct?'),
+            reply_markup=yes_no_keyboard(user_data['language'])
+        )
 
     elif query.data.startswith('prev_month_') or query.data.startswith('next_month_'):
         month_offset = int(query.data.split('_')[2])  # Преобразуем в целое число
@@ -320,6 +343,18 @@ def disable_time_buttons(reply_markup, selected_time):
         for button in row:
             if button.callback_data and button.callback_data.endswith(selected_time):
                 new_row.append(InlineKeyboardButton(f"🔴 {selected_time}", callback_data='none'))
+            else:
+                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)
+
+def disable_person_buttons(reply_markup, selected_person):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            if button.callback_data and button.callback_data.endswith(selected_person):
+                new_row.append(InlineKeyboardButton(f"🔴 {selected_person}", callback_data='none'))
             else:
                 new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
         new_keyboard.append(new_row)

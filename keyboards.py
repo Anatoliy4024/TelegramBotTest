@@ -1,70 +1,6 @@
-def generate_time_selection_keyboard(language, stage='start', start_time=None, disable_all=False):
-    if stage == 'end':
-        start_time_dt = datetime.strptime('10:00', '%H:%M')
-        end_time_dt = datetime.strptime('22:00', '%H:%M')
-    else:
-        start_time_dt = datetime.strptime('08:00', '%H:%M')
-        end_time_dt = datetime.strptime('22:00', '%H:%M')
-
-    time_buttons = []
-    current_time = start_time_dt
-
-    while current_time <= end_time_dt:
-        time_str = current_time.strftime('%H:%M')
-        if disable_all:
-            time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
-        elif stage == 'start' and current_time >= datetime.strptime('20:30', '%H:%M'):
-            time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
-        elif stage == 'end' and start_time:
-            start_time_dt = datetime.strptime(start_time, '%H:%M')
-            if current_time <= start_time_dt:
-                time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
-            elif (current_time - start_time_dt).seconds < 5400:
-                time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
-            elif (current_time - start_time_dt).seconds < 7200:
-                time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data=f'time_{time_str}'))
-            else:
-                time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))
-        else:
-            time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))
-        current_time += timedelta(minutes=30)
-
-    num_buttons_per_row = 4
-    rows = [time_buttons[i:i + num_buttons_per_row] for i in range(0, len(time_buttons), num_buttons_per_row)]
-
-    time_selection_headers = {
-        'start': {
-            'en': 'Planning to start at...',
-            'ru': 'Планирую начать в...',
-            'es': 'Planeo empezar a...',
-            'fr': 'Je prévois de commencer à...',
-            'uk': 'Планую почати о...',
-            'pl': 'Planuję zacząć o...',
-            'de': 'Ich plane um...',
-            'it': 'Prevedo di iniziare alle...'
-        },
-        'end': {
-            'en': 'Planning to end around...',
-            'ru': 'Планирую окончание около...',
-            'es': 'Planeo terminar alrededor de...',
-            'fr': 'Je prévois de terminer vers...',
-            'uk': 'Планую закінчити приблизно о...',
-            'pl': 'Planuję zakończyć około...',
-            'de': 'Ich plane zu beenden um...',
-            'it': 'Prevedo di finire intorno alle...'
-        }
-    }
-    selection_text = time_selection_headers[stage].get(language, "Planning to start at...")
-
-    keyboard = [
-        [InlineKeyboardButton(selection_text, callback_data='none')]
-    ] + rows
-
-    return InlineKeyboardMarkup(keyboard)
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from datetime import datetime, timedelta
 import calendar
-
 
 def generate_month_name(month, language):
     months = {
@@ -79,14 +15,13 @@ def generate_month_name(month, language):
         'uk': ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень",
                "Жовтень", "Листопад", "Грудень"],
         'pl': ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień",
-               "Październik", "Listопад", "Grudzień"],
+               "Paździerник", "Listopад", "Grudzień"],
         'de': ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober",
                "November", "Dezember"],
         'it': ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre",
                "Novembre", "Dicembre"]
     }
     return months[language][month - 1]
-
 
 def generate_calendar_keyboard(month_offset=0, language='en'):
     today = datetime.today()
@@ -155,19 +90,15 @@ def generate_calendar_keyboard(month_offset=0, language='en'):
 
 
 def generate_time_selection_keyboard(language, stage='start', start_time=None):
-    if stage == 'end':
-        start_time_dt = datetime.strptime('10:00', '%H:%M')
-        end_time_dt = datetime.strptime('22:00', '%H:%M')
-    else:
-        start_time_dt = datetime.strptime('08:00', '%H:%M')
-        end_time_dt = datetime.strptime('22:00', '%H:%M')
+    start_time_dt = datetime.strptime('08:00', '%H:%M')
+    end_time_dt = datetime.strptime('22:00', '%H:%M')
 
     time_buttons = []
     current_time = start_time_dt
 
     while current_time <= end_time_dt:
         time_str = current_time.strftime('%H:%M')
-        if stage == 'start' and time_str in ['20:30', '21:00', '21:30', '22:00']:
+        if stage == 'start' and current_time >= datetime.strptime('20:30', '%H:%M'):
             time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
         elif stage == 'end' and start_time:
             start_time_dt = datetime.strptime(start_time, '%H:%M')
@@ -216,6 +147,17 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
 
     return InlineKeyboardMarkup(keyboard)
 
+def disable_time_buttons(reply_markup, selected_time):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            if button.callback_data and button.callback_data.endswith(selected_time):
+                new_row.append(InlineKeyboardButton(f"🔴 {selected_time}", callback_data='none'))
+            else:
+                new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)
 
 def language_selection_keyboard():
     keyboard = [
@@ -233,7 +175,6 @@ def language_selection_keyboard():
         ]
     ]
     return InlineKeyboardMarkup(keyboard)
-
 
 def yes_no_keyboard(language):
     texts = {

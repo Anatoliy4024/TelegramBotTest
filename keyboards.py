@@ -179,95 +179,27 @@ def generate_month_name(month, language):
     }
     return months[language][month - 1]
 
-def generate_calendar_keyboard(month_offset=0, language='en'):
-    today = datetime.today()
-    base_month = today.month + month_offset
-    base_year = today.year
-
-    if base_month > 12:
-        base_month -= 12
-        base_year += 1
-    elif base_month < 1:
-        base_month += 12
-        base_year -= 1
-
-    first_of_month = datetime(base_year, base_month, 1)
-    last_day = calendar.monthrange(first_of_month.year, first_of_month.month)[1]
-    last_of_month = first_of_month.replace(day=last_day)
-
-    month_name = generate_month_name(first_of_month.month, language)
-    days_of_week = {
-        'en': ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        'ru': ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
-        'es': ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
-        'fr': ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
-        'uk': ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"],
-        'pl': ["Pon", "Wt", "Śr", "Czw", "Pią", "Sob", "Niedz"],
-        'de': ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
-        'it': ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"]
-    }
-
-    calendar_buttons = [
-        [InlineKeyboardButton(f"{month_name} {first_of_month.year}", callback_data='none')],
-        [InlineKeyboardButton(day, callback_data='none') for day in days_of_week[language]]
-    ]
-
-    start_weekday = first_of_month.weekday()
-    week_row = [InlineKeyboardButton(" ", callback_data='none') for _ in range(start_weekday)]
-
-    current_date = first_of_month
-    while current_date <= last_of_month:
-        if len(week_row) == 7:
-            calendar_buttons.append(week_row)
-            week_row = []
-
-        day_button = None
-        if current_date <= today:
-            day_button = InlineKeyboardButton(f"🔴 {current_date.day}", callback_data='none')
-        else:
-            day_button = InlineKeyboardButton(f"🟢 {current_date.day}", callback_data=f'date_{current_date.strftime("%Y-%m-%d")}')
-
-        week_row.append(day_button)
-        current_date += timedelta(days=1)
-
-    if week_row:
-        week_row.extend([InlineKeyboardButton(" ", callback_data='none') for _ in range(7 - len(week_row))])
-        calendar_buttons.append(week_row)
-
-    # Тексты для предыдущего и следующего
-    navigation_texts = {
-        'en': ("Previous", "Next"),
-        'ru': ("предыдущий", "следующий"),
-        'es': ("anterior", "siguiente"),
-        'fr': ("précédent", "suivant"),
-        'uk': ("попередній", "наступний"),
-        'pl': ("poprzedni", "następny"),
-        'de': ("vorherige", "nächster"),
-        'it': ("precedente", "successivo")
-    }
-
-    prev_month_text, next_month_text = navigation_texts.get(language, ("Previous", "Next"))
-
-    prev_month_button = InlineKeyboardButton(f"< {prev_month_text}",
-                                             callback_data=f"prev_month_{month_offset - 1}") if month_offset > -1 else InlineKeyboardButton(
-        " ", callback_data="none")
-    next_month_button = InlineKeyboardButton(f"{next_month_text} >",
-                                             callback_data=f"next_month_{month_offset + 1}") if month_offset < 2 else InlineKeyboardButton(
-        " ", callback_data="none")
-    calendar_buttons.append([prev_month_button, next_month_button])
-
-    return InlineKeyboardMarkup(calendar_buttons)
-
-def generate_time_selection_keyboard(language, stage='start'):
-    start_time = datetime.strptime('08:00', '%H:%M')
-    end_time = datetime.strptime('20:00', '%H:%M')
+def generate_time_selection_keyboard(language, stage='start', start_time=None):
+    start_time_dt = datetime.strptime('08:00', '%H:%M')
+    end_time_dt = datetime.strptime('20:00', '%H:%M')
 
     time_buttons = []
-    current_time = start_time
+    current_time = start_time_dt
 
-    while current_time <= end_time:
+    while current_time <= end_time_dt:
         time_str = current_time.strftime('%H:%M')
-        time_buttons.append(InlineKeyboardButton(time_str, callback_data=f'time_{time_str}'))
+        if stage == 'end' and start_time:
+            start_time_dt = datetime.strptime(start_time, '%H:%M')
+            if current_time <= start_time_dt:
+                time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
+            elif (current_time - start_time_dt).seconds < 5400:
+                time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
+            elif (current_time - start_time_dt).seconds < 7200:
+                time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data=f'time_{time_str}'))
+            else:
+                time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))
+        else:
+            time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))
         current_time += timedelta(minutes=30)
 
     num_buttons_per_row = 4

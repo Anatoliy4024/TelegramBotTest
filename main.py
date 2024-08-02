@@ -4,6 +4,7 @@ from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandle
 import logging
 import os
 import asyncio
+from datetime import datetime, timedelta  # Добавлен импорт datetime
 
 from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard
 
@@ -40,9 +41,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     user_data = context.user_data
-    user_id = query.from_user.id
 
-    # Переводы для "Start time set..." и "End time set..."
     time_set_texts = {
         'start_time': {
             'en': 'Start time set to {}. Now select end time.',
@@ -60,13 +59,12 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': 'La hora de finalización se ha establecido en {}. Confirma tu selección.',
             'fr': 'L\'heure de fin est fixée à {}. Confirmez votre sélection.',
             'uk': 'Час закінчення встановлено на {}. Підтвердіть свій вибір.',
-            'pl': 'Czas zakończenia ustawiono na {}. Potwierdź swój wybór.',
+            'pl': 'Czas zakończenia ustawiono на {}. Potwierdź swój wybór.',
             'de': 'Endzeit auf {} gesetzt. Bestätigen Sie Ihre Auswahl.',
             'it': 'L\'ora di fine è stata impostata su {}. Conferma la tua selezione.'
         }
     }
 
-    # Переводы для заголовков при выборе времени
     time_selection_headers = {
         'start': {
             'en': 'Planning to start at...',
@@ -194,45 +192,27 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user_data['start_time'] = selected_time
             await query.message.reply_text(
                 time_set_texts['start_time'].get(user_data['language'], 'Start time set to {}. Now select end time.').format(selected_time),
-                reply_markup=generate_time_selection_keyboard(user_data['language'], 'end')  # Передаем язык и этап
+                reply_markup=generate_time_selection_keyboard(user_data['language'], 'end', user_data['start_time'])  # Передаем язык и этап
             )
         else:
             user_data['end_time'] = selected_time
-            user_data['step'] = 'confirm'
-            await query.message.reply_text(
-                time_set_texts['end_time'].get(user_data['language'], 'End time set to {}. Confirm your selection.').format(selected_time),
-                reply_markup=yes_no_keyboard(user_data.get('language', 'en'))
-            )
+            start_time = datetime.strptime(user_data['start_time'], '%H:%M')
+            end_time = datetime.strptime(user_data['end_time'], '%H:%M')
+            if (end_time - start_time).seconds >= 7200:
+                await query.message.reply_text(
+                    time_set_texts['end_time'].get(user_data['language'], 'End time set to {}. Confirm your selection.').format(selected_time),
+                    reply_markup=yes_no_keyboard(user_data.get('language', 'en'))
+                )
+            else:
+                await query.message.reply_text(
+                    f"Minimum duration is 2 hours. Please select an end time at least 2 hours after the start time.",
+                    reply_markup=generate_time_selection_keyboard(user_data['language'], 'end', user_data['start_time'])
+                )
 
     elif query.data.startswith('prev_month_') or query.data.startswith('next_month_'):
         month_offset = int(query.data.split('_')[2])  # Преобразуем в целое число
         user_data['month_offset'] = month_offset
         await show_calendar(query, month_offset, user_data.get('language', 'en'))
-
-async def show_calendar(query, month_offset, language):
-    # Ограничиваем смещение месяцев: один месяц назад и два месяца вперед
-    if month_offset < -1:
-        month_offset = -1
-    elif month_offset > 2:
-        month_offset = 2
-
-    calendar_keyboard = generate_calendar_keyboard(month_offset, language)  # Передаем язык в календарь
-
-    select_date_text = {
-        'en': "Select a date:",
-        'ru': "Выберите дату:",
-        'es': "Seleccione una fecha:",
-        'fr': "Sélectionnez une date:",
-        'uk': "Виберіть дату:",
-        'pl': "Wybierz datę:",
-        'de': "Wählen Sie ein Datum:",
-        'it': "Seleziona una data:"
-    }
-
-    await query.message.reply_text(
-        select_date_text.get(language, 'Select a date:'),
-        reply_markup=calendar_keyboard
-    )
 
 async def show_calendar(query, month_offset, language):
     # Ограничиваем смещение месяцев: один месяц назад и два месяца вперед

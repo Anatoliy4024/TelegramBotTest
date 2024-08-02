@@ -91,7 +91,7 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
         time_str = current_time.strftime('%H:%M')
         if stage == 'end' and start_time:
             start_time_dt = datetime.strptime(start_time, '%H:%M')
-            if current_time <= start_time_dt or current_time >= datetime.strptime('20:30', '%H:%M'):
+            if current_time <= start_time_dt:
                 time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
             elif (current_time - start_time_dt).seconds < 5400:
                 time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
@@ -100,7 +100,7 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
             else:
                 time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))
         else:
-            if current_time >= datetime.strptime('20:30', '%H:%M'):
+            if stage == 'start' and current_time >= datetime.strptime('20:30', '%H:%M'):
                 time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
             else:
                 time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))
@@ -109,7 +109,7 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
     num_buttons_per_row = 4
     rows = [time_buttons[i:i + num_buttons_per_row] for i in range(0, len(time_buttons), num_buttons_per_row)]
 
-    selection_text = {
+    time_selection_headers = {
         'start': {
             'en': 'Planning to start at...',
             'ru': 'Планирую начать в...',
@@ -130,7 +130,34 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
             'de': 'Ich plane zu beenden um...',
             'it': 'Prevedo di finire intorno alle...'
         }
-    }[stage].get(language, "Select start and end time (minimum duration 2 hours)")
+    }
+    selection_text = time_selection_headers[stage].get(language, "Planning to start at...")
+
+    keyboard = [
+        [InlineKeyboardButton(selection_text, callback_data='none')]
+    ] + rows
+
+    return InlineKeyboardMarkup(keyboard)
+
+def generate_person_selection_keyboard(language):
+    buttons = []
+    for i in range(2, 21):
+        buttons.append(InlineKeyboardButton(f"{i}", callback_data=f"persons_{i}"))
+
+    rows = [buttons[i:i + 4] for i in range(0, len(buttons), 4)]
+
+    person_selection_texts = {
+        'en': "Select the number of persons (2-20):",
+        'ru': "Выберите количество персон (2-20):",
+        'es': "Seleccione el número de personas (2-20):",
+        'fr': "Sélectionnez le nombre de personnes (2-20):",
+        'uk': "Виберіть кількість осіб (2-20):",
+        'pl': "Wybierz liczbę osób (2-20):",
+        'de': "Wählen Sie die Anzahl der Personen (2-20):",
+        'it': "Seleziona il numero di persone (2-20):"
+    }
+
+    selection_text = person_selection_texts.get(language, "Select the number of persons (2-20):")
 
     keyboard = [
         [InlineKeyboardButton(selection_text, callback_data='none')]

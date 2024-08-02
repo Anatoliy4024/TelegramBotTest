@@ -3,9 +3,10 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputMe
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler, MessageHandler, ContextTypes, filters
 import logging
 import os
+import asyncio
 from datetime import datetime, timedelta
 
-from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard
+from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard, generate_person_selection_keyboard
 
 # Включаем логирование
 logging.basicConfig(
@@ -58,7 +59,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': 'La hora de finalización se ha establecido en {}. Confirma tu selección.',
             'fr': 'L\'heure de fin est fixée à {}. Confirmez votre sélection.',
             'uk': 'Час закінчення встановлено на {}. Підтвердіть свій вибір.',
-            'pl': 'Czas zakończenia ustawiono на {}. Potwierdź swój wybór.',
+            'pl': 'Czas zakończenia ustawiono na {}. Potwierdź swój wybór.',
             'de': 'Endzeit auf {} gesetzt. Bestätigen Sie Ihre Auswahl.',
             'it': 'L\'ora di fine è stata impostata su {}. Conferma la tua selezione.'
         }
@@ -66,14 +67,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     time_selection_headers = {
         'start': {
-            'en': 'Planning to start at...',
-            'ru': 'Планирую начать в...',
-            'es': 'Planeo empezar a...',
-            'fr': 'Je prévois de commencer à...',
-            'uk': 'Планую почати о...',
-            'pl': 'Planuję zacząć o...',
-            'de': 'Ich plane um...',
-            'it': 'Prevedo di iniziare alle...'
+            'en': 'Select start and end time (minimum duration 2 hours)',
+            'ru': 'Выберите время начала и окончания (минимальная продолжительность 2 часа)',
+            'es': 'Selecciona la hora de inicio y fin (duración mínima 2 horas)',
+            'fr': 'Sélectionnez l\'heure de début et de fin (durée minimale 2 heures)',
+            'uk': 'Виберіть час початку та закінчення (мінімальна тривалість 2 години)',
+            'pl': 'Wybierz czas rozpoczęcia i zakończenia (minimalny czas trwania 2 godziny)',
+            'de': 'Wählen Sie Start- und Endzeit (Mindestdauer 2 Stunden)',
+            'it': 'Seleziona l\'ora di inizio e fine (durata minima 2 ore)'
         },
         'end': {
             'en': 'Planning to end around...',
@@ -87,15 +88,15 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
     }
 
-    time_selection_texts = {
-        'en': 'Select start and end time (minimum duration 2 hours)',
-        'ru': 'Выберите время начала и окончания (минимальная продолжительность 2 часа)',
-        'es': 'Selecciona la hora de inicio y fin (duración mínima 2 horas)',
-        'fr': 'Sélectionnez l\'heure de début et de fin (durée minimale 2 heures)',
-        'uk': 'Виберіть час початку та закінчення (мінімальна тривалість 2 години)',
-        'pl': 'Wybierz czas rozpoczęcia i zakończenia (minimalny czas trwania 2 godziny)',
-        'de': 'Wählen Sie Start- und Endzeit (Mindestdauer 2 Stunden)',
-        'it': 'Seleziona l\'ora di inizio e fine (durata minima 2 ore)'
+    person_selection_texts = {
+        'en': 'Select the number of persons (2-20):',
+        'ru': 'Выберите количество персон (2-20):',
+        'es': 'Seleccione el número de personas (2-20):',
+        'fr': 'Sélectionnez le nombre de personnes (2-20):',
+        'uk': 'Виберіть кількість осіб (2-20):',
+        'pl': 'Wybierz liczbę osób (2-20):',
+        'de': 'Wählen Sie die Anzahl der Personen (2-20):',
+        'it': 'Seleziona il numero di persone (2-20):'
     }
 
     if query.data.startswith('lang_'):
@@ -142,7 +143,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': '¡Hola! ¿Cómo te llamas?',
             'fr': 'Salut! Quel est votre nom ?',
             'uk': 'Привіт! Як вас звати?',
-            'pl': 'Cześć! Jak masz na імę?',
+            'pl': 'Cześć! Jak masz na imię?',
             'de': 'Hallo! Wie heißt du?',
             'it': 'Ciao! Come ti chiami?'
         }
@@ -158,8 +159,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif user_data['step'] == 'date_confirmation':
             user_data['step'] = 'time_selection'
             await query.message.reply_text(
-                time_selection_texts.get(user_data['language'], 'Select start and end time (minimum duration 2 hours)'),
+                time_selection_headers['start'].get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
                 reply_markup=generate_time_selection_keyboard(user_data['language'], 'start')  # Передаем язык и этап
+            )
+        elif user_data['step'] == 'time_selection_confirmation':
+            user_data['step'] = 'person_selection'
+            await query.message.reply_text(
+                person_selection_texts.get(user_data['language'], "Select the number of persons (2-20):"),
+                reply_markup=generate_person_selection_keyboard(user_data['language'])
             )
 
     elif query.data == 'no':
@@ -176,7 +183,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user_data.pop('start_time', None)
             user_data.pop('end_time', None)
             await query.message.reply_text(
-                time_selection_texts.get(user_data['language'], 'Select start and end time (minimum duration 2 hours)'),
+                time_selection_headers['start'].get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
                 reply_markup=generate_time_selection_keyboard(user_data['language'], 'start')  # Передаем язык и этап
             )
 
@@ -220,6 +227,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     time_set_texts['end_time'].get(user_data['language'], 'End time set to {}. Confirm your selection.').format(selected_time),
                     reply_markup=yes_no_keyboard(user_data.get('language', 'en'))
                 )
+                user_data['step'] = 'time_selection_confirmation'  # Добавлено изменение шага на подтверждение выбора времени
             else:
                 await query.message.reply_text(
                     f"Minimum duration is 2 hours. Please select an end time at least 2 hours after the start time.",

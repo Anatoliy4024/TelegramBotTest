@@ -42,6 +42,54 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_data = context.user_data
     user_id = query.from_user.id
 
+    # Переводы для "Start time set..." и "End time set..."
+    time_set_texts = {
+        'start_time': {
+            'en': 'Start time set to {}. Now select end time.',
+            'ru': 'Время начала установлено на {}. Теперь выберите время окончания.',
+            'es': 'La hora de inicio se ha establecido en {}. Ahora selecciona la hora de finalización.',
+            'fr': 'L\'heure de début est fixée à {}. Maintenant, sélectionnez l\'heure de fin.',
+            'uk': 'Час початку встановлено на {}. Тепер виберіть час закінчення.',
+            'pl': 'Czas rozpoczęcia ustawiono na {}. Teraz wybierz czas zakończenia.',
+            'de': 'Startzeit auf {} gesetzt. Wählen Sie nun die Endzeit.',
+            'it': 'L\'ora di inizio è stata impostata su {}. Ora seleziona l\'ora di fine.'
+        },
+        'end_time': {
+            'en': 'End time set to {}. Confirm your selection.',
+            'ru': 'Время окончания установлено на {}. Подтвердите свой выбор.',
+            'es': 'La hora de finalización se ha establecido en {}. Confirma tu selección.',
+            'fr': 'L\'heure de fin est fixée à {}. Confirmez votre sélection.',
+            'uk': 'Час закінчення встановлено на {}. Підтвердіть свій вибір.',
+            'pl': 'Czas zakończenia ustawiono na {}. Potwierdź swój wybór.',
+            'de': 'Endzeit auf {} gesetzt. Bestätigen Sie Ihre Auswahl.',
+            'it': 'L\'ora di fine è stata impostata su {}. Conferma la tua selezione.'
+        }
+    }
+
+    # Переводы для заголовков при выборе времени
+    time_selection_headers = {
+        'start': {
+            'en': 'Planning to start at...',
+            'ru': 'Планирую начать в...',
+            'es': 'Planeo empezar a...',
+            'fr': 'Je prévois de commencer à...',
+            'uk': 'Планую почати о...',
+            'pl': 'Planuję zacząć o...',
+            'de': 'Ich plane um...',
+            'it': 'Prevedo di iniziare alle...'
+        },
+        'end': {
+            'en': 'Planning to end around...',
+            'ru': 'Планирую окончание около...',
+            'es': 'Planeo terminar alrededor de...',
+            'fr': 'Je prévois de terminer vers...',
+            'uk': 'Планую закінчити приблизно о...',
+            'pl': 'Planuję zakończyć około...',
+            'de': 'Ich plane zu beenden um...',
+            'it': 'Prevedo di finire intorno alle...'
+        }
+    }
+
     if query.data.startswith('lang_'):
         language_code = query.data.split('_')[1]
         user_data['language'] = language_code
@@ -86,7 +134,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': '¡Hola! ¿Cómo te llamas?',
             'fr': 'Salut! Quel est votre nom ?',
             'uk': 'Привіт! Як вас звати?',
-            'pl': 'Cześć! Jak masz na имię?',
+            'pl': 'Cześć! Jak masz na imię?',
             'de': 'Hallo! Wie heißt du?',
             'it': 'Ciao! Come ti chiami?'
         }
@@ -101,19 +149,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await show_calendar(query, user_data.get('month_offset', 0), user_data.get('language', 'en'))
         elif user_data['step'] == 'date_confirmation':
             user_data['step'] = 'time_selection'
-            time_selection_texts = {
-                'en': "Select start and end time (minimum duration 2 hours)",
-                'ru': "Выберите время начала и окончания (минимальная продолжительность 2 часа)",
-                'es': "Selecciona la hora de inicio y fin (duración mínima 2 часа)",
-                'fr': "Sélectionnez l'heure de début и de fin (durée минималь 2 часа)",
-                'uk': "Виберіть час початку та закінчення (мінімальна тривалість 2 години)",
-                'pl': "Wybierz czas rozpoczęcia i zakończenia (minimalny czas trwania 2 godziny)",
-                'de': "Wählen Sie Start- und Endzeit (Mindestdauer 2 Stunden)",
-                'it': "Seleziona l'ora di inizio e fine (durata minima 2 ore)"
-            }
             await query.message.reply_text(
-                time_selection_texts.get(user_data['language'], "Select start and end time (minimum duration 2 hours)"),
-                reply_markup=generate_time_selection_keyboard(user_data['language'])  # Передаем язык в клавиатуру
+                time_selection_headers['start'].get(user_data['language'], "Planning to start at..."),
+                reply_markup=generate_time_selection_keyboard(user_data['language'], 'start')  # Передаем язык и этап
             )
 
     elif query.data == 'no':
@@ -154,18 +192,47 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         selected_time = query.data.split('_')[1]
         if 'start_time' not in user_data:
             user_data['start_time'] = selected_time
-            await query.message.reply_text(f'Start time set to {selected_time}. Now select end time.',
-                                           reply_markup=generate_time_selection_keyboard(user_data['language']))  # Передаем язык в клавиатуру
+            await query.message.reply_text(
+                time_set_texts['start_time'].get(user_data['language'], 'Start time set to {}. Now select end time.').format(selected_time),
+                reply_markup=generate_time_selection_keyboard(user_data['language'], 'end')  # Передаем язык и этап
+            )
         else:
             user_data['end_time'] = selected_time
             user_data['step'] = 'confirm'
-            await query.message.reply_text(f'End time set to {selected_time}. Confirm your selection.',
-                                           reply_markup=yes_no_keyboard(user_data.get('language', 'en')))
+            await query.message.reply_text(
+                time_set_texts['end_time'].get(user_data['language'], 'End time set to {}. Confirm your selection.').format(selected_time),
+                reply_markup=yes_no_keyboard(user_data.get('language', 'en'))
+            )
 
     elif query.data.startswith('prev_month_') or query.data.startswith('next_month_'):
-        month_offset = int(query.data.split('_')[2])
+        month_offset = int(query.data.split('_')[2])  # Преобразуем в целое число
         user_data['month_offset'] = month_offset
         await show_calendar(query, month_offset, user_data.get('language', 'en'))
+
+async def show_calendar(query, month_offset, language):
+    # Ограничиваем смещение месяцев: один месяц назад и два месяца вперед
+    if month_offset < -1:
+        month_offset = -1
+    elif month_offset > 2:
+        month_offset = 2
+
+    calendar_keyboard = generate_calendar_keyboard(month_offset, language)  # Передаем язык в календарь
+
+    select_date_text = {
+        'en': "Select a date:",
+        'ru': "Выберите дату:",
+        'es': "Seleccione una fecha:",
+        'fr': "Sélectionnez une date:",
+        'uk': "Виберіть дату:",
+        'pl': "Wybierz datę:",
+        'de': "Wählen Sie ein Datum:",
+        'it': "Seleziona una data:"
+    }
+
+    await query.message.reply_text(
+        select_date_text.get(language, 'Select a date:'),
+        reply_markup=calendar_keyboard
+    )
 
 async def show_calendar(query, month_offset, language):
     # Ограничиваем смещение месяцев: один месяц назад и два месяца вперед

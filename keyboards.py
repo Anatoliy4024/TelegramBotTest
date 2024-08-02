@@ -240,7 +240,7 @@ def generate_calendar_keyboard(month_offset=0, language='en'):
 
     return InlineKeyboardMarkup(calendar_buttons)
 
-def generate_time_selection_keyboard(language):
+def generate_time_selection_keyboard(language, stage='start'):
     start_time = datetime.strptime('08:00', '%H:%M')
     end_time = datetime.strptime('20:00', '%H:%M')
 
@@ -255,17 +255,29 @@ def generate_time_selection_keyboard(language):
     num_buttons_per_row = 4
     rows = [time_buttons[i:i + num_buttons_per_row] for i in range(0, len(time_buttons), num_buttons_per_row)]
 
-    time_selection_texts = {
-        'en': "Select start and end time (minimum duration 2 hours)",
-        'ru': "Выберите время начала и окончания (минимальная продолжительность 2 часа)",
-        'es': "Selecciona la hora de inicio и fin (duración mínima 2 horas)",
-        'fr': "Sélectionnez l'heure de début и de fin (durée minimale 2 heures)",
-        'uk': "Виберіть час початку та закінчення (мінімальна тривалість 2 години)",
-        'pl': "Wybierz czas rozpoczęcia i zakończenia (minimalny czas trwania 2 godziny)",
-        'de': "Wählen Sie Start- und Endzeit (Mindestdauer 2 Stunden)",
-        'it': "Seleziona l'ora di inizio e fine (durata minima 2 ore)"
+    time_selection_headers = {
+        'start': {
+            'en': 'Planning to start at...',
+            'ru': 'Планирую начать в...',
+            'es': 'Planeo empezar a...',
+            'fr': 'Je prévois de commencer à...',
+            'uk': 'Планую почати о...',
+            'pl': 'Planuję zacząć o...',
+            'de': 'Ich plane um...',
+            'it': 'Prevedo di iniziare alle...'
+        },
+        'end': {
+            'en': 'Planning to end around...',
+            'ru': 'Планирую окончание около...',
+            'es': 'Planeo terminar alrededor de...',
+            'fr': 'Je prévois de terminer vers...',
+            'uk': 'Планую закінчити приблизно о...',
+            'pl': 'Planuję zakończyć około...',
+            'de': 'Ich plane zu beenden um...',
+            'it': 'Prevedo di finire intorno alle...'
+        }
     }
-    selection_text = time_selection_texts.get(language, "Select start and end time (minimum duration 2 hours)")
+    selection_text = time_selection_headers[stage].get(language, "Planning to start at...")
 
     keyboard = [
         [InlineKeyboardButton(selection_text, callback_data='none')]

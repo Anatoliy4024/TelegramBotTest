@@ -234,8 +234,26 @@ def generate_calendar_keyboard(month_offset=0, language='en'):
         week_row.extend([InlineKeyboardButton(" ", callback_data='none') for _ in range(7 - len(week_row))])
         calendar_buttons.append(week_row)
 
-    prev_month_button = InlineKeyboardButton("<", callback_data=f"prev_month_{month_offset - 1}") if month_offset > -1 else InlineKeyboardButton(" ", callback_data="none")
-    next_month_button = InlineKeyboardButton(">", callback_data=f"next_month_{month_offset + 1}") if month_offset < 2 else InlineKeyboardButton(" ", callback_data="none")
+    # Тексты для предыдущего и следующего
+    navigation_texts = {
+        'en': ("Previous", "Next"),
+        'ru': ("предыдущий", "следующий"),
+        'es': ("anterior", "siguiente"),
+        'fr': ("précédent", "suivant"),
+        'uk': ("попередній", "наступний"),
+        'pl': ("poprzedni", "następny"),
+        'de': ("vorherige", "nächster"),
+        'it': ("precedente", "successivo")
+    }
+
+    prev_month_text, next_month_text = navigation_texts.get(language, ("Previous", "Next"))
+
+    prev_month_button = InlineKeyboardButton(f"< {prev_month_text}",
+                                             callback_data=f"prev_month_{month_offset - 1}") if month_offset > -1 else InlineKeyboardButton(
+        " ", callback_data="none")
+    next_month_button = InlineKeyboardButton(f"{next_month_text} >",
+                                             callback_data=f"next_month_{month_offset + 1}") if month_offset < 2 else InlineKeyboardButton(
+        " ", callback_data="none")
     calendar_buttons.append([prev_month_button, next_month_button])
 
     return InlineKeyboardMarkup(calendar_buttons)

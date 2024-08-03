@@ -138,16 +138,16 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
 def language_selection_keyboard():
     keyboard = [
         [
-            InlineKeyboardButton("🇬🇧 EN", callback_data='lang_en'),
-            InlineKeyboardButton("🇷🇺 RU", callback_data='lang_ru'),
             InlineKeyboardButton("🇪🇸 ES", callback_data='lang_es'),
+            InlineKeyboardButton("🇬🇧 EN", callback_data='lang_en'),
+            InlineKeyboardButton("🇺🇦 UA", callback_data='lang_uk'),
             InlineKeyboardButton("🇫🇷 FR", callback_data='lang_fr')
         ],
         [
-            InlineKeyboardButton("🇺🇦 UA", callback_data='lang_uk'),
             InlineKeyboardButton("🇵🇱 PL", callback_data='lang_pl'),
             InlineKeyboardButton("🇩🇪 DE", callback_data='lang_de'),
-            InlineKeyboardButton("🇮🇹 IT", callback_data='lang_it')
+            InlineKeyboardButton("🇮🇹 IT", callback_data='lang_it'),
+            InlineKeyboardButton("🇷🇺 RU", callback_data='lang_ru'),
         ]
     ]
     return InlineKeyboardMarkup(keyboard)

@@ -256,7 +256,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': f'Seleccionaste {selected_date}, ¿correcto?',
             'fr': f'Vous avez sélectionné {selected_date}, correct ?',
             'uk': f'Ви вибрали {selected_date}, правильно?',
-            'pl': f'Wybrałeś {selected_date}, poprawne?',
+            'pl': f'Wybrałeś {selected_date}, poprawне?',
             'de': f'Sie haben {selected_date} gewählt, richtig?',
             'it': f'Hai selezionato {selected_date}, corretto?'
         }
@@ -304,7 +304,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': f'Seleccionaste {selected_person} personas, ¿correcto?',
             'fr': f'Vous avez sélectionné {selected_person} personnes, correct ?',
             'uk': f'Ви вибрали {selected_person} людей, правильно?',
-            'pl': f'Wybrałeś {selected_person} osób, poprawne?',
+            'pl': f'Wybrałeś {selected_person} osób, poprawне?',
             'de': f'Sie haben {selected_person} Personen gewählt, richtig?',
             'it': f'Hai selezionato {selected_person} persone, corretto?'
         }

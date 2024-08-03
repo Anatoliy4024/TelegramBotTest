@@ -91,7 +91,7 @@ def generate_time_selection_keyboard(language, stage='start', start_time=None):
         time_str = current_time.strftime('%H:%M')
         if stage == 'end' and start_time:
             start_time_dt = datetime.strptime(start_time, '%H:%M')
-            if current_time <= start_time_dt:
+            if current_time < start_time_dt + timedelta(hours=2):
                 time_buttons.append(InlineKeyboardButton(f"🔴 {time_str}", callback_data='none'))
             else:
                 time_buttons.append(InlineKeyboardButton(f"🟢 {time_str}", callback_data=f'time_{time_str}'))

@@ -199,7 +199,7 @@ def generate_party_styles_keyboard(language):
             ("🟢 Cena romántica", "🟢 Seminario"),
             ("🟢 Cena con velas", "🟢 Team building"),
             ("🟢 Aniversario", "🟢 Reunión familiar"),
-            ("🟢 Cumpleaños adulto", "🟢 Clásico"),
+            ("🟢 Cumpleaños adulto", "🟢 Clásico")
         ],
         'fr': [
             ("🟢 Chicha", "🟢 Dîner en bord de mer"),
@@ -230,17 +230,17 @@ def generate_party_styles_keyboard(language):
             ("🟢 Picknick im Park", "🟢 Teambildung")
         ],
         'it': [
-            ("🟢 Colazione al mare", "🟢 Shisha"),
-            ("🟢 Romantico", "🟢 Cena sotto le stelle"),
+            ("🟢 Colazione sul mare", "🟢 Shisha"),
+            ("🟢 Romantico", "🟢 Seminari"),
             ("🟢 Classico", "🟢 Compleanno bambino"),
-            ("🟢 Team building", "🟢 Picnic nel parco"),
-            ("🟢 Compleanno adulto", "🟢 Cena romantica")
+            ("🟢 Colazione al mare", "🟢 Anniversario"),
+            ("🟢 Picnic nel parco", "🟢 Team building")
         ]
     }
 
-    keyboard = [
-        [InlineKeyboardButton(style[0], callback_data=f'style_{style[0][2:]}'), InlineKeyboardButton(style[1], callback_data=f'style_{style[1][2:]}')]
-        for style in styles[language]
-    ]
+    keyboard = []
+    for style_pair in styles[language]:
+        keyboard.append([InlineKeyboardButton(style_pair[0], callback_data=f'style_{style_pair[0].strip("🟢 ")}'),
+                         InlineKeyboardButton(style_pair[1], callback_data=f'style_{style_pair[1].strip("🟢 ")}')])
 
     return InlineKeyboardMarkup(keyboard)

@@ -189,6 +189,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         elif user_data['step'] == 'style_confirmation':
             user_data['step'] = 'confirmation'
+            # Continue to the final confirmation step or next action
             await query.message.reply_text(
                 "Your selection is confirmed. Proceed to the next step."
             )
@@ -233,6 +234,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data['step'] = 'date_confirmation'
         user_data['selected_date'] = selected_date
 
+        # Меняем цвет кнопки на красный и делаем все остальные кнопки неактивными
         await query.edit_message_reply_markup(reply_markup=disable_calendar_buttons(query.message.reply_markup, selected_date))
 
         confirmation_texts = {
@@ -280,6 +282,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data['step'] = 'people_confirmation'
         user_data['selected_person'] = selected_person
 
+        # Меняем цвет кнопки на красный и делаем все остальные кнопки неактивными
         await query.edit_message_reply_markup(reply_markup=disable_person_buttons(query.message.reply_markup, selected_person))
 
         confirmation_texts = {
@@ -302,6 +305,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data['step'] = 'style_confirmation'
         user_data['selected_style'] = selected_style
 
+        # Меняем цвет кнопки на красный и делаем все остальные кнопки неактивными
         await query.edit_message_reply_markup(reply_markup=disable_style_buttons(query.message.reply_markup, selected_style))
 
         confirmation_texts = {
@@ -364,7 +368,7 @@ async def handle_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'ru': f'Привет {user_data["name"]}! Хочешь увидеть доступные даты?',
         'es': f'Hola {user_data["name"]}! ¿Quieres ver las fechas disponibles?',
         'fr': f'Bonjour {user_data["name"]}! Voulez-vous voir les dates disponibles?',
-        'uk': f'Привіт, {user_data["name"]}! Хочеш подивитися які дати доступні?',
+        'uk': f'Привіт {user_data["name"]}! Хочеш подивитися які дати доступні?',
         'pl': f'Cześć {user_data["name"]}! Chcesz zobaczyć dostępne daty?',
         'de': f'Hallo {user_data["name"]}! Möchten Sie verfügbare Daten sehen?',
         'it': f'Ciao {user_data["name"]}! Vuoi vedere le date disponibili?'
@@ -410,7 +414,7 @@ def disable_person_buttons(reply_markup, selected_person):
     for row in reply_markup.inline_keyboard:
         new_row = []
         for button in row:
-            if button.callback_data and button.callback_data.endswith(selected_person):
+            if button.callback_data and button.callback_data.endswith(f'person_{selected_person}'):
                 new_row.append(InlineKeyboardButton(f"🔴 {selected_person}", callback_data='none'))
             else:
                 new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
@@ -422,7 +426,7 @@ def disable_style_buttons(reply_markup, selected_style):
     for row in reply_markup.inline_keyboard:
         new_row = []
         for button in row:
-            if button.callback_data and button.callback_data.endswith(selected_style):
+            if button.callback_data and button.callback_data.endswith(f'style_{selected_style}'):
                 new_row.append(InlineKeyboardButton(f"🔴 {selected_style}", callback_data='none'))
             else:
                 new_row.append(InlineKeyboardButton(button.text, callback_data='none'))

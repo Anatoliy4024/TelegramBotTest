@@ -241,11 +241,8 @@ def generate_party_styles_keyboard(language):
     }
 
     keyboard = []
-    for left_text, right_text in styles[language]:
-        # Используем пробелы для растяжения кнопок
-        button_text = f"{left_text} {' ' * 10} {right_text}"
-        keyboard.append([
-            InlineKeyboardButton(button_text, callback_data=f'style_{left_text.strip("🟢 ")}')
-        ])
+    for style_pair in styles[language]:
+        keyboard.append([InlineKeyboardButton(style_pair[0], callback_data=f'style_{style_pair[0].strip("🟢 ")}'),
+                         InlineKeyboardButton(style_pair[1], callback_data=f'style_{style_pair[1].strip("🟢 ")}')])
 
     return InlineKeyboardMarkup(keyboard)

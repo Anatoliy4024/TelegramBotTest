@@ -3,7 +3,6 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputMe
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler, MessageHandler, ContextTypes, filters
 import logging
 import os
-import asyncio
 from datetime import datetime, timedelta
 
 from keyboards import language_selection_keyboard, yes_no_keyboard, generate_calendar_keyboard, generate_time_selection_keyboard, generate_person_selection_keyboard, generate_party_styles_keyboard
@@ -189,10 +188,12 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         elif user_data['step'] == 'style_confirmation':
             user_data['step'] = 'confirmation'
-            # Continue to the final confirmation step or next action
             await query.message.reply_text(
                 "Your selection is confirmed. Proceed to the next step."
             )
+
+        # Disable the "no" button
+        await query.edit_message_reply_markup(reply_markup=disable_yes_no_buttons(query.message.reply_markup))
 
     elif query.data == 'no':
         if user_data['step'] == 'calendar':
@@ -430,6 +431,15 @@ def disable_style_buttons(reply_markup, selected_style):
                 new_row.append(InlineKeyboardButton(f"🔴 {selected_style}", callback_data='none'))
             else:
                 new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
+        new_keyboard.append(new_row)
+    return InlineKeyboardMarkup(new_keyboard)
+
+def disable_yes_no_buttons(reply_markup):
+    new_keyboard = []
+    for row in reply_markup.inline_keyboard:
+        new_row = []
+        for button in row:
+            new_row.append(InlineKeyboardButton(button.text, callback_data='none'))
         new_keyboard.append(new_row)
     return InlineKeyboardMarkup(new_keyboard)
 

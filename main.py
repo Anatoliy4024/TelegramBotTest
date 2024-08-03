@@ -61,7 +61,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': 'La hora de finalización se ha establecido en {}. Confirma tu selección.',
             'fr': 'L\'heure de fin est fixée à {}. Confirmez votre sélection.',
             'uk': 'Час закінчення встановлено на {}. Підтвердіть свій вибір.',
-            'pl': 'Czas zakończenia ustawiono на {}. Potwierdź swój wybór.',
+            'pl': 'Czas zakończenia ustawiono na {}. Potwierdź swój wybór.',
             'de': 'Endzeit auf {} gesetzt. Bestätigen Sie Ihre Auswahl.',
             'it': 'L\'ora di fine è stata impostata su {}. Conferma la tua selezione.'
         }
@@ -189,7 +189,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         elif user_data['step'] == 'style_confirmation':
             user_data['step'] = 'confirmation'
-            # Continue to the final confirmation step or next action
             await query.message.reply_text(
                 "Your selection is confirmed. Proceed to the next step."
             )
@@ -234,7 +233,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data['step'] = 'date_confirmation'
         user_data['selected_date'] = selected_date
 
-        # Меняем цвет кнопки на красный и делаем все остальные кнопки неактивными
         await query.edit_message_reply_markup(reply_markup=disable_calendar_buttons(query.message.reply_markup, selected_date))
 
         confirmation_texts = {
@@ -282,7 +280,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data['step'] = 'people_confirmation'
         user_data['selected_person'] = selected_person
 
-        # Меняем цвет кнопки на красный и делаем все остальные кнопки неактивными
         await query.edit_message_reply_markup(reply_markup=disable_person_buttons(query.message.reply_markup, selected_person))
 
         confirmation_texts = {
@@ -305,7 +302,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data['step'] = 'style_confirmation'
         user_data['selected_style'] = selected_style
 
-        # Меняем цвет кнопки на красный и делаем все остальные кнопки неактивными
         await query.edit_message_reply_markup(reply_markup=disable_style_buttons(query.message.reply_markup, selected_style))
 
         confirmation_texts = {

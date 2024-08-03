@@ -178,10 +178,6 @@ def generate_person_selection_keyboard(language):
     rows = [person_buttons[i:i + num_buttons_per_row] for i in range(0, len(person_buttons), num_buttons_per_row)]
     return InlineKeyboardMarkup(rows)
 
-
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
-
 def generate_party_styles_keyboard(language):
     styles = {
         'en': [
@@ -198,33 +194,19 @@ def generate_party_styles_keyboard(language):
             ("🟢 Пикник в парке", "🟢 Семинар"),
             ("🟢 Тимбилдинг", "🟢 Мастер-классы")
         ],
-        'fr': [
-            ("🟢 Classique", "🟢 Annivers. enfant"),
-            ("🟢 Anniv. adulte", "🟢 Soirée étoiles"),
-            ("🟢 Romantique", "🟢 Conférences"),
-            ("🟢 Picnic au parc", "🟢 Team building"),
-            ("🟢 Chicha", "🟢 Dîner en bord de mer")
-        ],
         'es': [
             ("🟢 Desayuno en el mar", "🟢 Chicha"),
             ("🟢 Cena romántica", "🟢 Seminario"),
             ("🟢 Cena con velas", "🟢 Team building"),
             ("🟢 Aniversario", "🟢 Reunión familiar"),
-            ("🟢 Cumpleaños adulto", "🟢 Clásico")
+            ("🟢 Cumpleaños adulto", "🟢 Clásico"),
         ],
-        'de': [
-            ("🟢 Klassik", "🟢 Sternenabend"),
-            ("🟢 Erwachsenen Geburtstag", "🟢 Shisha"),
-            ("🟢 Romantik", "🟢 Geburtstag Kind"),
-            ("🟢 Frühstück am Meer", "🟢 Jubiläum"),
-            ("🟢 Picknick im Park", "🟢 Teambildung")
-        ],
-        'pl': [
-            ("🟢 Romantyczny", "🟢 Wieczór gwiazd"),
-            ("🟢 Urodziny dorosłego", "🟢 Shisha"),
-            ("🟢 Klasyczny", "🟢 Urodziny dziecka"),
-            ("🟢 Morski śniadanie", "🟢 Jubileusz"),
-            ("🟢 Piknik w parku", "🟢 Integracja")
+        'fr': [
+            ("🟢 Chicha", "🟢 Dîner en bord de mer"),
+            ("🟢 Romantique", "🟢 Conférences"),
+            ("🟢 Classique", "🟢 Annivers. enfant"),
+            ("🟢 Team building", "🟢 Picnic au parc"),
+            ("🟢 Anniv. adulte", "🟢 Soirée étoiles")
         ],
         'uk': [
             ("🟢 Класичний", "🟢 ДР дитини"),
@@ -233,18 +215,32 @@ def generate_party_styles_keyboard(language):
             ("🟢 Вечеря під зорями", "🟢 Кальян"),
             ("🟢 Пікнік у парку", "🟢 Семінари")
         ],
+        'pl': [
+            ("🟢 Romantyczny", "🟢 Wieczór gwiazd"),
+            ("🟢 Urodziny dorosłego", "🟢 Shisha"),
+            ("🟢 Klasyczny", "🟢 Urodziny dziecka"),
+            ("🟢 Morski śniadanie", "🟢 Jubileusz"),
+            ("🟢 Piknik w parku", "🟢 Integracja")
+        ],
+        'de': [
+            ("🟢 Klassik", "🟢 Sternenabend"),
+            ("🟢 Erwachsenen Geburtstag", "🟢 Shisha"),
+            ("🟢 Romantik", "🟢 Geburtstag Kind"),
+            ("🟢 Frühstück am Meer", "🟢 Jubiläum"),
+            ("🟢 Picknick im Park", "🟢 Teambildung")
+        ],
         'it': [
+            ("🟢 Colazione al mare", "🟢 Shisha"),
+            ("🟢 Romantico", "🟢 Cena sotto le stelle"),
             ("🟢 Classico", "🟢 Compleanno bambino"),
-            ("🟢 Compleanno adulto", "🟢 Cena romantica"),
-            ("🟢 Serata sotto le stelle", "🟢 Team building"),
-            ("🟢 Cena a lume di candela", "🟢 Shisha"),
-            ("🟢 Colazione sul mare", "🟢 Picnic nel parco")
+            ("🟢 Team building", "🟢 Picnic nel parco"),
+            ("🟢 Compleanno adulto", "🟢 Cena romantica")
         ]
     }
 
-    keyboard = []
-    for style_pair in styles[language]:
-        keyboard.append([InlineKeyboardButton(style_pair[0], callback_data=f'style_{style_pair[0]}'),
-                         InlineKeyboardButton(style_pair[1], callback_data=f'style_{style_pair[1]}')])
+    keyboard = [
+        [InlineKeyboardButton(style[0], callback_data=f'style_{style[0][2:]}'), InlineKeyboardButton(style[1], callback_data=f'style_{style[1][2:]}')]
+        for style in styles[language]
+    ]
 
     return InlineKeyboardMarkup(keyboard)

@@ -224,7 +224,19 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 people_selection_headers.get(user_data['language'], 'How many people are attending?'),
                 reply_markup=generate_person_selection_keyboard(user_data['language'])
             )
+        elif user_data['step'] == 'people_confirmation':
+            user_data['step'] = 'people_selection'
+            await query.message.reply_text(
+                people_selection_headers.get(user_data['language'], 'How many people are attending?'),
+                reply_markup=generate_person_selection_keyboard(user_data['language'])
+            )
         elif user_data['step'] == 'style_selection':
+            await query.message.reply_text(
+                party_styles_headers.get(user_data['language'], 'What style do you choose?'),
+                reply_markup=generate_party_styles_keyboard(user_data['language'])
+            )
+        elif user_data['step'] == 'style_confirmation':
+            user_data['step'] = 'style_selection'
             await query.message.reply_text(
                 party_styles_headers.get(user_data['language'], 'What style do you choose?'),
                 reply_markup=generate_party_styles_keyboard(user_data['language'])
@@ -292,7 +304,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': f'Seleccionaste {selected_person} personas, ¿correcto?',
             'fr': f'Vous avez sélectionné {selected_person} personnes, correct ?',
             'uk': f'Ви вибрали {selected_person} людей, правильно?',
-            'pl': f'Wybrałeś {selected_person} osób, poprawне?',
+            'pl': f'Wybrałeś {selected_person} osób, poprawne?',
             'de': f'Sie haben {selected_person} Personen gewählt, richtig?',
             'it': f'Hai selezionato {selected_person} persone, corretto?'
         }

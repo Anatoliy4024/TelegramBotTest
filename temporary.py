@@ -178,65 +178,63 @@ def generate_person_selection_keyboard(language):
     rows = [person_buttons[i:i + num_buttons_per_row] for i in range(0, len(person_buttons), num_buttons_per_row)]
     return InlineKeyboardMarkup(rows)
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
 def generate_party_styles_keyboard(language):
     styles = {
         'en': [
-            ("🟢 Corporate", "🟢 Breakfast on the beach"),
-            ("🟢 Gender reveal", "🟢 Dinner by candlelight"),
-            ("🟢 Romantic meeting", "🟢 Wedding anniversary"),
-            ("🟢 Child's birthday", "🟢 Bachelorette party"),
-            ("🟢 Adult's birthday", "🟢 Gift certificate")
+            ("🟢 Classic", "🟢 Child's Birthday"),
+            ("🟢 Jubilee", "🟢 Adult's Birthday"),
+            ("🟢 Romantic", "🟢 Starry Evening"),
+            ("🟢 Picnic in the Park", "🟢 Seminars"),
+            ("🟢 Team Building", "🟢 Masterclasses")
         ],
         'ru': [
-            ("🟢 Девичник", "🟢 Романтическая встреча"),
-            ("🟢 Корпоратив", "🟢 Подарочный сертификат"),
-            ("🟢 Раскрытие пола", "🟢 Взрослый день рождения"),
-            ("🟢 Годовщина свадьбы", "🟢 Детский день рождения"),
-            ("🟢 Ужин при свечах", "🟢 Завтрак на пляже")
+            ("🟢 Классика", "🟢 Детский ДР"),
+            ("🟢 Юбилей", "🟢 Взрослый ДР"),
+            ("🟢 Романтик", "🟢 Звездный вечер"),
+            ("🟢 Пикник в парке", "🟢 Семинар"),
+            ("🟢 Тимбилдинг", "🟢 Мастер-классы")
         ],
         'es': [
-            ("🟢 Corporativo", "🟢 Cena a la luz de las velas"),
-            ("🟢 Cumpleaños adulto", "🟢 Certificado de regalo"),
-            ("🟢 Encuentro romántico", "🟢 Desayuno en la playa"),
-            ("🟢 Aniversario de bodas", "🟢 Despedida de soltera"),
-            ("🟢 Revelación de sexo", "🟢 Cumpleaños infantil")
+            ("🟢 Desayuno en el mar", "🟢 Chicha"),
+            ("🟢 Cena romántica", "🟢 Seminario"),
+            ("🟢 Cena con velas", "🟢 Team building"),
+            ("🟢 Aniversario", "🟢 Reunión familiar"),
+            ("🟢 Cumpleaños adulto", "🟢 Clásico")
         ],
         'fr': [
-            ("🟢 Corporatif", "🟢 Enterrement de vie de jeune fille"),
-            ("🟢 Certificat cadeau", "🟢 Petit déjeuner sur la plage"),
-            ("🟢 Anniversaire adulte", "🟢 Anniversaire de mariage"),
-            ("🟢 Révélation de sexe", "🟢 Dîner aux chandelles"),
-            ("🟢 Rencontre romantique", "🟢 Anniversaire d'enfant")
+            ("🟢 Chicha", "🟢 Dîner en bord de mer"),
+            ("🟢 Romantique", "🟢 Conférences"),
+            ("🟢 Classique", "🟢 Annivers. enfant"),
+            ("🟢 Team building", "🟢 Picnic au parc"),
+            ("🟢 Anniv. adulte", "🟢 Soirée étoiles")
         ],
         'uk': [
-            ("🟢 Корпоратив", "🟢 Дорослий день народження"),
-            ("🟢 Дівич-вечір", "🟢 Подарунковий сертифікат"),
-            ("🟢 Розкриття статі", "🟢 Дитячий день народження"),
-            ("🟢 Річниця весілля", "🟢 Романтична зустріч"),
-            ("🟢 Сніданок на пляжі", "🟢 Вечеря при свічках")
+            ("🟢 Класичний", "🟢 ДР дитини"),
+            ("🟢 Романтичний", "🟢 Тімбілдінг"),
+            ("🟢 Морський сніданок", "🟢 Ювілей"),
+            ("🟢 Вечеря під зорями", "🟢 Кальян"),
+            ("🟢 Пікнік у парку", "🟢 Семінари")
         ],
         'pl': [
-            ("🟢 Korporacyjny", "🟢 Kolacja przy świecach"),
-            ("🟢 Bon upominkowy", "🟢 Romantyczne spotkanie"),
-            ("🟢 Rocznica ślubu", "🟢 Dziecięce urodziny"),
-            ("🟢 Ujawnienie płci", "🟢 Śniadanie na plaży"),
-            ("🟢 Dorosłe urodziny", "🟢 Wieczór panieński")
+            ("🟢 Romantyczny", "🟢 Wieczór gwiazd"),
+            ("🟢 Urodziny dorosłego", "🟢 Shisha"),
+            ("🟢 Klasyczny", "🟢 Urodziny dziecka"),
+            ("🟢 Morski śniadanie", "🟢 Jubileusz"),
+            ("🟢 Piknik w parku", "🟢 Integracja")
         ],
         'de': [
-            ("🟢 Jubiläum", "🟢 Junggesellinnenabschied"),
-            ("🟢 Firmenfeier", "🟢 Abendessen bei Kerzenschein"),
-            ("🟢 Sternenabend", "🟢 Geschlechtsenthüllung"),
-            ("🟢 Geschenkgutschein", "🟢 Romantisches Treffen"),
-            ("🟢 Kindergeburtstag", "🟢 Frühstück am Strand")
+            ("🟢 Klassik", "🟢 Sternenabend"),
+            ("🟢 Erwachsenen Geburtstag", "🟢 Shisha"),
+            ("🟢 Romantik", "🟢 Geburtstag Kind"),
+            ("🟢 Frühstück am Meer", "🟢 Jubiläum"),
+            ("🟢 Picknick im Park", "🟢 Teambildung")
         ],
         'it': [
-            ("🟢 Corporativo", "🟢 Festa di addio al nubilato"),
-            ("🟢 Incontro romantico", "🟢 Anniversario di matrimonio"),
-            ("🟢 Certificato regalo", "🟢 Colazione sulla spiaggia"),
-            ("🟢 Rivelazione del sesso", "🟢 Compleanno dell'adulto"),
-            ("🟢 Cena a lume di candela", "🟢 Compleanno del bambino")
+            ("🟢 Colazione sul mare", "🟢 Shisha"),
+            ("🟢 Romantico", "🟢 Seminari"),
+            ("🟢 Classico", "🟢 Compleanno bambino"),
+            ("🟢 Colazione al mare", "🟢 Anniversario"),
+            ("🟢 Picnic nel parco", "🟢 Team building")
         ]
     }
 

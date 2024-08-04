@@ -187,9 +187,19 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=generate_party_styles_keyboard(user_data['language'])
             )
         elif user_data['step'] == 'style_confirmation':
-            user_data['step'] = 'confirmation'
+            user_data['step'] = 'preferences_request'
+            preferences_request_texts = {
+                'en': 'Please write your preferences for table setting colors, food items (or exclusions), and desired table accessories (candles, glasses, etc.) - no more than 1000 characters.',
+                'ru': 'Напишите свои предпочтения по цвету сервировки и продуктам (или исключения по ним) и желаемые аксессуары сервировки (свечи, бокалы и прочее) - не более 1000 знаков.',
+                'es': 'Escriba sus preferencias de colores para la mesa, artículos de comida (o exclusiones), y accesorios de mesa deseados (velas, copas, etc.) - no más de 1000 caracteres.',
+                'fr': 'Veuillez écrire vos préférences pour les couleurs de la table, les aliments (ou exclusions), et les accessoires de table désirés (bougies, verres, etc.) - pas plus de 1000 caractères.',
+                'uk': 'Напишіть свої уподобання щодо кольору сервіровки та продуктів (або винятки з них) і бажані аксесуари для сервіровки (свічки, келихи тощо) - не більше 1000 знаків.',
+                'pl': 'Napisz swoje preferencje dotyczące kolorów nakrycia stołu, produktów spożywczych (lub wyłączeń) i pożądanych akcesoriów stołowych (świece, szklanki itp.) - nie więcej niż 1000 znaków.',
+                'de': 'Bitte schreiben Sie Ihre Vorlieben für Tischdeckfarben, Lebensmittel (oder Ausschlüsse) und gewünschte Tischaccessoires (Kerzen, Gläser usw.) - nicht mehr als 1000 Zeichen.',
+                'it': 'Scrivi le tue preferenze per i colori della tavola, gli articoli alimentari (o le esclusioni) e gli accessori per la tavola desiderati (candele, bicchieri, ecc.) - non più di 1000 caratteri.'
+            }
             await query.message.reply_text(
-                "Your selection is confirmed. Proceed to the next step."
+                preferences_request_texts.get(user_data['language'], "Please write your preferences for table setting colors, food items (or exclusions), and desired table accessories (candles, glasses, etc.) - no more than 1000 characters.")
             )
 
         # Disable the "no" button
@@ -256,7 +266,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': f'Seleccionaste {selected_date}, ¿correcto?',
             'fr': f'Vous avez sélectionné {selected_date}, correct ?',
             'uk': f'Ви вибрали {selected_date}, правильно?',
-            'pl': f'Wybrałeś {selected_date}, poprawне?',
+            'pl': f'Wybrałeś {selected_date}, poprawne?',
             'de': f'Sie haben {selected_date} gewählt, richtig?',
             'it': f'Hai selezionato {selected_date}, corretto?'
         }
@@ -304,7 +314,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': f'Seleccionaste {selected_person} personas, ¿correcto?',
             'fr': f'Vous avez sélectionné {selected_person} personnes, correct ?',
             'uk': f'Ви вибрали {selected_person} людей, правильно?',
-            'pl': f'Wybrałeś {selected_person} osób, poprawне?',
+            'pl': f'Wybrałeś {selected_person} osób, poprawne?',
             'de': f'Sie haben {selected_person} Personen gewählt, richtig?',
             'it': f'Hai selezionato {selected_person} persone, corretto?'
         }
@@ -327,7 +337,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'es': f'Seleccionaste el estilo {selected_style}, ¿correcto?',
             'fr': f'Vous avez sélectionné le style {selected_style}, correct ?',
             'uk': f'Ви вибрали стиль {selected_style}, правильно?',
-            'pl': f'Wybrałeś styl {selected_style}, poprawне?',
+            'pl': f'Wybrałeś styl {selected_style}, poprawne?',
             'de': f'Sie haben den Stil {selected_style} gewählt, richtig?',
             'it': f'Hai selezionato lo stile {selected_style}, corretto?'
         }

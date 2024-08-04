@@ -22,7 +22,7 @@ VIDEO_PATHS = [
     'media/IMG_6412 (online-video-cutter.com).mp4'
 ]
 
-# Замените 'YOUR_BOT_TOKEN' на токен вашего бота
+# Замените 'YOUR_BOT_TOKEN' на токен вашего бота_____
 BOT_TOKEN = '7407529729:AAErOT5NBpMSO-V-HPAW-MDu_1WQt0TtXng'
 
 # Подключение к базе данных

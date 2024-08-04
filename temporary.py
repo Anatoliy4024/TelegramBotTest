@@ -243,4 +243,4 @@ def generate_party_styles_keyboard(language):
         keyboard.append([InlineKeyboardButton(style_pair[0], callback_data=f'style_{style_pair[0].strip("🟢 ")}'),
                          InlineKeyboardButton(style_pair[1], callback_data=f'style_{style_pair[1].strip("🟢 ")}')])
 
-    return InlineKeyboardMarkup(keyboard)
+    return InlineKeyboardMarkup(keyb'es': '¡Hola! ¿Cómo te llamas?',

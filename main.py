@@ -37,7 +37,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = update.message.from_user.username
     user_address = update.message.chat_id
 
-    # Подключение к базе данных
+    # Подключение к базе данных тттттт
     try:
         conn = sqlite3.connect(db_path)
         c = conn.cursor()

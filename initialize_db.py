@@ -1,26 +1,34 @@
 import sqlite3
+import os
 
-# Путь к базе данных
-db_path = 'user_sessions.db'
+db_path = os.path.join(os.path.dirname(__file__), 'user_sessions.db')
 
-# Устанавливаем соединение с базой данных
-conn = sqlite3.connect(db_path)
-c = conn.cursor()
+def initialize_db():
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
 
-# Создаем таблицу user_sessions, если она не существует
-c.execute('''
+    # Создание таблицы, если она не существует
+    c.execute('''
     CREATE TABLE IF NOT EXISTS user_sessions (
-        id INTEGER PRIMARY KEY,
+        session_id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
-        start_time TEXT NOT NULL
+        language TEXT,
+        telegram_name TEXT,
+        user_name TEXT,
+        event_date TEXT,
+        start_time TEXT,
+        end_time TEXT,
+        duration INTEGER,
+        number_of_people INTEGER,
+        party_style TEXT,
+        preferences TEXT,
+        event_city TEXT
     )
-''')
+    ''')
 
-# Проверяем существующие таблицы
-c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-print(c.fetchall())
+    conn.commit()
+    conn.close()
 
-# Закрываем соединение с базой данных
-conn.close()
-
-print("Database and table created successfully.")
+if __name__ == "__main__":
+    initialize_db()
+    print("Database and table created successfully.")
